@@ -20,6 +20,8 @@ public:
 	std::vector<float> vertices;
 	std::vector<int> indices;
 
+	VertexLayout* vertexLayout = &MeshOnCPU::defaultVertexLayout;
+
 	inline static VertexLayout defaultVertexLayout = {
 		2,
 		{0, 1},

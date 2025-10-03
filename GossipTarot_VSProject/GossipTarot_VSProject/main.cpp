@@ -1,6 +1,11 @@
 
 #include <iostream>
+
+#include <sstream>
 #include <string>
+#include <iomanip>
+
+#include <cmath>
 #include <chrono>
 
 #include "glad/glad.h"
@@ -22,33 +27,16 @@
 
 #include "Input.h"
 
+#include "FastNoise/FastNoise.h"
 #include "flecs/flecs.h"
+
+#include "BakedMeshData.h"
+#include "VoxelFunctions.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
-
-float vertices[] = {
-	 0.5f,  0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f,
-	-0.5f, -0.5f, 0.0f,
-	-0.5f,  0.5f, 0.0f
-};
-
-unsigned int indices[] = {
-	0, 1, 3,
-	1, 2, 3
-};
-
-
-float verticesWithTexCoords[] = {
-	// positions			// texture coords
-	 0.5f,  0.5f, 0.0f,		1.0f, 1.0f,   // top right
-	 0.5f, -0.5f, 0.0f,		1.0f, 0.0f,   // bottom right
-	-0.5f, -0.5f, 0.0f,		0.0f, 0.0f,   // bottom left
-	-0.5f,  0.5f, 0.0f,		0.0f, 1.0f    // top left 
-};
 
 void UpdateKeyStates(GLFWwindow* window) {
 
@@ -69,6 +57,12 @@ void UpdateKeyStates(GLFWwindow* window) {
 	int pKeyState = glfwGetKey(window, GLFW_KEY_P);
 	SetKeyBasedOnState(KeyCode::KEY_P, pKeyState > 0 ? PRESSED_OR_HELD : RELEASED);
 
+	int qKeyState = glfwGetKey(window, GLFW_KEY_Q);
+	SetKeyBasedOnState(KeyCode::KEY_Q, qKeyState > 0 ? PRESSED_OR_HELD : RELEASED);
+
+	int eKeyState = glfwGetKey(window, GLFW_KEY_E);
+	SetKeyBasedOnState(KeyCode::KEY_E, eKeyState > 0 ? PRESSED_OR_HELD : RELEASED);
+
 	int escKeyState = glfwGetKey(window, GLFW_KEY_ESCAPE);
 	SetKeyBasedOnState(KeyCode::KEY_ESCAPE, escKeyState > 0 ? PRESSED_OR_HELD : RELEASED);
 
@@ -86,6 +80,18 @@ void UpdateKeyStates(GLFWwindow* window) {
 
 	mouseXDelta = mouseX - mouseXFromPreviousFrame;
 	mouseYDelta = mouseY - mouseYFromPreviousFrame;
+}
+
+void RenderDeltaTimeInMS(const ShaderProgram& shaderForRendering, const int& rootUIRectIndex, const MeshOnGPU& meshOnGPU, const float& deltaTime) {
+
+	Vector3 deltaTimeTextPosition = { -200.0f, -60.0f, 0.0f };
+	float deltaTimeInMs = deltaTime * 1000.0f;
+	float roundedDeltaTimeInMs = std::round(deltaTimeInMs * std::pow(10, 2)) / std::pow(10, 2);
+	std::stringstream deltaTimeStringStream;
+	deltaTimeStringStream << std::fixed << std::setprecision(2) << roundedDeltaTimeInMs;
+	std::string deltaTimeString = deltaTimeStringStream.str() + " ms.";
+
+	RenderText(shaderForRendering, AnchorPosition::TopRight, meshOnGPU, deltaTimeString, deltaTimeTextPosition, rootUIRectIndex);
 }
 
 int main() {
@@ -116,8 +122,24 @@ int main() {
 
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+	glEnable(GL_DEPTH_TEST);
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
+	// Enable face culling
+	glEnable(GL_CULL_FACE);
+
+	// Cull only back faces
+	glCullFace(GL_BACK);
+
+	// Define front face as counter-clockwise
+	glFrontFace(GL_CCW);
+
+
+
+
 
 	std::string woodContainerTexturePath = "Assets/Textures/WoodContainer.jpg";
 	int woodContainerTextureIndex = TextureFromFile(woodContainerTexturePath);
@@ -127,35 +149,6 @@ int main() {
 
 	std::string courierFontPath = "Assets/Fonts/cour.ttf";
 
-	//Shader simpleVertexShader;
-	//simpleVertexShader.shaderFilePath = "Assets/Shaders/SimpleShaderNoCamera/SimpleShaderNoCamera.vert";
-	//simpleVertexShader.shaderType = SHADER_TYPE::VERTEX_SHADER;
-	//simpleVertexShader.CreateShader();
-
-	//Shader simpleFragmentShader;
-	//simpleFragmentShader.shaderFilePath = "Assets/Shaders/SimpleShaderNoCamera/SimpleShaderNoCamera.frag";
-	//simpleFragmentShader.shaderType = SHADER_TYPE::FRAGMENT_SHADER;
-	//simpleFragmentShader.CreateShader();
-
-	//std::vector<Shader> shadersForThisShaderProgram = { simpleVertexShader, simpleFragmentShader };
-	//ShaderProgram simpleVertexAndFragmentNoCameraShaderProgram;
-
-	//simpleVertexAndFragmentNoCameraShaderProgram.CreateShaderProgram(shadersForThisShaderProgram);
-
-	//Shader simpleVertexShaderWithTextures;
-	//simpleVertexShaderWithTextures.shaderFilePath = "Assets/Shaders/SimpleShaderNoCameraWithTextures/SimpleShaderNoCameraWithTextures.vert";
-	//simpleVertexShaderWithTextures.shaderType = SHADER_TYPE::VERTEX_SHADER;
-	//simpleVertexShaderWithTextures.CreateShader();
-
-	//Shader simpleFragmentShaderWithTextures;
-	//simpleFragmentShaderWithTextures.shaderFilePath = "Assets/Shaders/SimpleShaderNoCameraWithTextures/SimpleShaderNoCameraWithTextures.frag";
-	//simpleFragmentShaderWithTextures.shaderType = SHADER_TYPE::FRAGMENT_SHADER;
-	//simpleFragmentShaderWithTextures.CreateShader();
-
-	//std::vector<Shader> shadersForThisShaderProgram = { simpleVertexShaderWithTextures, simpleFragmentShaderWithTextures };
-	//ShaderProgram simpleVertexAndFragmentNoCameraWithTexturesShaderProgram;
-
-	//simpleVertexAndFragmentNoCameraWithTexturesShaderProgram.CreateShaderProgram(shadersForThisShaderProgram);
 
 
 	Shader simpleVertexShaderWithCameraWithTextures;
@@ -188,17 +181,49 @@ int main() {
 
 	textRenderingVertexAndFragmentWithCameraWithTexturesShaderProgram.CreateShaderProgram(shadersForTextRenderingShaderProgram);
 
+	
+	//Shader voxelRenderingVertexShaderWithCameraWithTextures;
+	//voxelRenderingVertexShaderWithCameraWithTextures.shaderFilePath = "Assets/Shaders/CompressedVoxelWithTexturesShader/CompressedVoxelWithTexturesShader.vert";
+	//voxelRenderingVertexShaderWithCameraWithTextures.shaderType = SHADER_TYPE::VERTEX_SHADER;
+	//voxelRenderingVertexShaderWithCameraWithTextures.CreateShader();
+
+	//Shader voxelRenderingFragmentShaderWithCameraWithTextures;
+	//voxelRenderingFragmentShaderWithCameraWithTextures.shaderFilePath = "Assets/Shaders/CompressedVoxelWithTexturesShader/CompressedVoxelWithTexturesShader.frag";
+	//voxelRenderingFragmentShaderWithCameraWithTextures.shaderType = SHADER_TYPE::FRAGMENT_SHADER;
+	//voxelRenderingFragmentShaderWithCameraWithTextures.CreateShader();
+
+	//std::vector<Shader> shadersForVoxelRenderingShaderProgram = { voxelRenderingVertexShaderWithCameraWithTextures, voxelRenderingFragmentShaderWithCameraWithTextures };
+	//ShaderProgram voxelRenderingVertexAndFragmentWithCameraWithTexturesShaderProgram;
+
+	//voxelRenderingVertexAndFragmentWithCameraWithTexturesShaderProgram.CreateShaderProgram(shadersForVoxelRenderingShaderProgram);
+
+
+	Shader voxelRenderingVertexShaderWithCameraWithTexturesPerFace;
+	voxelRenderingVertexShaderWithCameraWithTexturesPerFace.shaderFilePath = "Assets/Shaders/CompressedVoxelWithTexturesShaderPerFace/CompressedVoxelWithTexturesShaderPerFace.vert";
+	voxelRenderingVertexShaderWithCameraWithTexturesPerFace.shaderType = SHADER_TYPE::VERTEX_SHADER;
+	voxelRenderingVertexShaderWithCameraWithTexturesPerFace.CreateShader();
+
+	Shader voxelRenderingFragmentShaderWithCameraWithTexturesPerFace;
+	voxelRenderingFragmentShaderWithCameraWithTexturesPerFace.shaderFilePath = "Assets/Shaders/CompressedVoxelWithTexturesShaderPerFace/CompressedVoxelWithTexturesShaderPerFace.frag";
+	voxelRenderingFragmentShaderWithCameraWithTexturesPerFace.shaderType = SHADER_TYPE::FRAGMENT_SHADER;
+	voxelRenderingFragmentShaderWithCameraWithTexturesPerFace.CreateShader();
+
+	std::vector<Shader> shadersForVoxelPerFaceRenderingShaderProgram = { voxelRenderingVertexShaderWithCameraWithTexturesPerFace, voxelRenderingFragmentShaderWithCameraWithTexturesPerFace };
+	ShaderProgram voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceShaderProgram;
+
+	voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceShaderProgram.CreateShaderProgram(shadersForVoxelPerFaceRenderingShaderProgram);
+
 
 	MeshOnCPU simpleQuadMeshCPU;
 	for (int i = 0; i < 20; i++)
 	{
 		//simpleQuadMeshCPU.vertices.push_back(vertices[i]);
-		simpleQuadMeshCPU.vertices.push_back(verticesWithTexCoords[i]);
+		simpleQuadMeshCPU.vertices.push_back(QuadVerticesWithTexCoords[i]);
 	};
 
 	for (int i = 0; i < 6; i++)
 	{
-		simpleQuadMeshCPU.indices.push_back(indices[i]);
+		simpleQuadMeshCPU.indices.push_back(QuadIndices[i]);
 	}
 
 	MeshOnGPU simpleQuadMeshGPU;
@@ -206,25 +231,43 @@ int main() {
 	CreateMeshOnGPU(simpleQuadMeshCPU, simpleQuadMeshGPU);
 
 
-	//Transform modelTransform;
-	//modelTransform.position = { 0.0f, -1.0f, 0.0f };
-	//modelTransform.rotation = { 90.0f, 0.0f, 0.0f };
-	//modelTransform.scale = { 1.0f, 1.0f, 1.0f };
+	MeshOnCPU simpleCubeMeshCPU;
+	for (int i = 0; i < 120; i++)
+	{
+		simpleCubeMeshCPU.vertices.push_back(CubeVerticesWithTexCoords[i]);
+	};
+
+	for (int i = 0; i < 36; i++)
+	{
+		simpleCubeMeshCPU.indices.push_back(CubeIndices[i]);
+	}
+
+	MeshOnGPU simpleCubeMeshGPU;
+
+	CreateMeshOnGPU(simpleCubeMeshCPU, simpleCubeMeshGPU);
+
+
+	Transform modelTransform;
+	modelTransform.position = { 0.0f, 0.0f, 3.0f };
+	modelTransform.rotation = { 0.0f, 0.0f, 0.0f };
+	modelTransform.scale = { 1.0f, 1.0f, 1.0f };
+
+
+
+	Transform cameraTransform;
+	cameraTransform.position = { 0.0f, 3.0f, -3.0f };
+	cameraTransform.rotation = { 0.0f, 0.0f, 0.0f };
+	cameraTransform.scale = { 1.0f, 1.0f, 1.0f };
+
+	Camera mainCamera;
+	mainCamera.viewport.dimensions = { WINDOW_WIDTH, WINDOW_HEIGHT };
+	mainCamera.SetProjectionMatrixToPerspectiveProjection(45.0f, 0.1f, 1000.0f);
+
 
 	Transform uiModelTransform;
 	uiModelTransform.position = { 0.0f, 0.0f, 0.0f };
 	uiModelTransform.rotation = { 0.0f, 0.0f, 0.0f };
 	uiModelTransform.scale = { 100.0f, 100.0f, 100.0f };
-
-
-	//Transform cameraTransform;
-	//cameraTransform.position = { 0.0f, 0.0f, -3.0f };
-	//cameraTransform.rotation = { 0.0f, 0.0f, 0.0f };
-	//cameraTransform.scale = { 1.0f, 1.0f, 1.0f };
-
-	//Camera mainCamera;
-	//mainCamera.viewport.dimensions = { WINDOW_WIDTH, WINDOW_HEIGHT };
-	//mainCamera.SetProjectionMatrixToPerspectiveProjection(45.0f, 0.1f, 1000.0f);
 
 	Camera uiCamera;
 	uiCamera.viewport.dimensions = { WINDOW_WIDTH, WINDOW_HEIGHT };
@@ -235,10 +278,6 @@ int main() {
 	uiCameraTransform.rotation = { 0.0f, 0.0f, 0.0f };
 	uiCameraTransform.scale = { 1.0f, 1.0f, 1.0f };
 
-	//Vector3 cameraTargetPosition = { 0.0f, 0.0f, 0.0f };
-	//Vector3 cameraDirection = glm::normalize(cameraTargetPosition - cameraTransform.position);
-	//mainCamera.SetCameraDirectionVectors(Transform::worldUp, cameraDirection);
-
 	const int rootUIRectIndex = UI_Rect::uiRects.size();
 	Vector3 rootStart = { -WINDOW_WIDTH / 2.0f, -WINDOW_HEIGHT / 2.0f, 0.0f };
 	Vector3 rootEnd = { WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f, 0.0f };
@@ -248,9 +287,12 @@ int main() {
 
 	InitializeCharacterRects(courierFontPath, rootUIRectIndex);
 
-	int numChildrenUIRects = 0;
+	int numChildrenUIRects = 4;
 	for (int i = 0; i < numChildrenUIRects; i++)
 	{
+		if (i == 2) {
+			continue;
+		}
 		UI_Rect someChildUIRect;
 		someChildUIRect.index = UI_Rect::uiRects.size();
 
@@ -286,6 +328,25 @@ int main() {
 		AddUIRectAsChildToUIRect(someChildUIRect, rootUIRectIndex);
 	}
 
+
+
+
+	auto fnSimplex = FastNoise::New<FastNoise::Simplex>();
+	auto fnFractal = FastNoise::New<FastNoise::FractalFBm>();
+
+	fnFractal->SetSource(fnSimplex);
+	fnFractal->SetOctaveCount(5);
+
+	Vector3Int chunkSizeInVoxels = { 32, 32, 32 };
+	std::vector<float> noiseOutput(chunkSizeInVoxels.x * chunkSizeInVoxels.z);
+
+	fnFractal->GenUniformGrid2D(noiseOutput.data(), 0, 0, chunkSizeInVoxels.x, chunkSizeInVoxels.z, 0.2f, 1337);
+
+	unsigned int numVoxelsInChunk = 0;
+	//GenerateChunkVoxelPositionsOnGPUAsVBO(simpleCubeMeshGPU, numVoxelsInChunk, noiseOutput, chunkSizeInVoxels);
+	GenerateChunkVoxelPositionsOnGPUAsVBO(simpleQuadMeshGPU, numVoxelsInChunk, noiseOutput, chunkSizeInVoxels);
+	//std::cout << "Num Voxels in chunk : " << numVoxelsInChunk << std::endl;
+
 	std::chrono::time_point<std::chrono::high_resolution_clock> lastFrameEndTime = std::chrono::high_resolution_clock::now();
 	float deltaTime = 0.0f;
 
@@ -298,121 +359,135 @@ int main() {
 
 		UpdateKeyStates(window);
 
-		float moveSpeed = 5.0f;
-		//if (GetKeyHeld(KeyCode::KEY_W)) {
-		//	modelTransform.position.z += deltaTime * moveSpeed;
-		//}
-		//if (GetKeyHeld(KeyCode::KEY_A)) {
-		//	modelTransform.position.x -= deltaTime * moveSpeed;
-		//}
-		//if (GetKeyHeld(KeyCode::KEY_S)) {
-		//	modelTransform.position.z -= deltaTime * moveSpeed;
-		//}
-		//if (GetKeyHeld(KeyCode::KEY_D)) {
-		//	modelTransform.position.x += deltaTime * moveSpeed;
-		//}		
+		float mouseSensitivity = 75.0f;
+		float moveSpeed = 3.0f;
 
-		//float mouseSensitivity = 50.0f;
 
-		//cameraTransform.rotation.y -= mouseXDelta * mouseSensitivity * deltaTime;
-		//cameraTransform.rotation.x += mouseYDelta * mouseSensitivity * deltaTime;
+		if (GetKeyHeld(KeyCode::MOUSE_BUTTON_RIGHT)) {
 
-		//if (cameraTransform.rotation.x > 90.0f)
-		//	cameraTransform.rotation.x = 90.0f;
-		//if (cameraTransform.rotation.x < -90.0f)
-		//	cameraTransform.rotation.x = -90.0f;
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-		//Vector3 cameraFront = Vector3{ 0.0f, 0.0f, 1.0f };
+			cameraTransform.rotation.y -= mouseXDelta * mouseSensitivity * deltaTime;
+			cameraTransform.rotation.x += mouseYDelta * mouseSensitivity * deltaTime;
 
-		//glm::quat rotQuat = glm::quat(glm::radians(cameraTransform.rotation));
-		//Mat4x4 rotationMatrix = glm::mat4_cast(rotQuat);
-		//cameraFront = glm::vec3(rotationMatrix * glm::vec4(cameraFront, 1.0f));
+			if (cameraTransform.rotation.x > 90.0f)
+				cameraTransform.rotation.x = 90.0f;
+			if (cameraTransform.rotation.x < -90.0f)
+				cameraTransform.rotation.x = -90.0f;
 
-		//mainCamera.SetCameraDirectionVectors(Transform::worldUp, cameraFront);
+			Vector3 cameraFront = Vector3{ 0.0f, 0.0f, 1.0f };
 
-		//if (GetKeyHeld(KeyCode::KEY_W)) {
-		//	cameraTransform.position += mainCamera.cameraPointingDirection * moveSpeed * deltaTime;
-		//}
-		//if (GetKeyHeld(KeyCode::KEY_A)) {
-		//	cameraTransform.position -= mainCamera.cameraRight * moveSpeed * deltaTime;
-		//}
-		//if (GetKeyHeld(KeyCode::KEY_S)) {
-		//	cameraTransform.position -= mainCamera.cameraPointingDirection * moveSpeed * deltaTime;
-		//}
-		//if (GetKeyHeld(KeyCode::KEY_D)) {
-		//	cameraTransform.position += mainCamera.cameraRight * moveSpeed * deltaTime;
-		//}
+			glm::quat rotQuat = glm::quat(glm::radians(cameraTransform.rotation));
+			Mat4x4 rotationMatrix = glm::mat4_cast(rotQuat);
+			cameraFront = glm::vec3(rotationMatrix * glm::vec4(cameraFront, 1.0f));
 
+			mainCamera.SetCameraDirectionVectors(Transform::worldUp, cameraFront);
+
+			if (GetKeyHeld(KeyCode::KEY_W)) {
+				cameraTransform.position += mainCamera.cameraPointingDirection * moveSpeed * deltaTime;
+			}
+			if (GetKeyHeld(KeyCode::KEY_A)) {
+				cameraTransform.position -= mainCamera.cameraRight * moveSpeed * deltaTime;
+			}
+			if (GetKeyHeld(KeyCode::KEY_S)) {
+				cameraTransform.position -= mainCamera.cameraPointingDirection * moveSpeed * deltaTime;
+			}
+			if (GetKeyHeld(KeyCode::KEY_D)) {
+				cameraTransform.position += mainCamera.cameraRight * moveSpeed * deltaTime;
+			}
+
+			if (GetKeyHeld(KeyCode::KEY_Q)) {
+				cameraTransform.position += cameraTransform.worldUp * moveSpeed * deltaTime;
+			}
+			if (GetKeyHeld(KeyCode::KEY_E)) {
+				cameraTransform.position -= cameraTransform.worldUp * moveSpeed * deltaTime;
+			}
+		}
+		else {
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
+
+
+		// Clear screen
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//glUseProgram(simpleVertexAndFragmentNoCameraShaderProgram.shaderProgramID);
-		//glUseProgram(simpleVertexAndFragmentNoCameraWithTexturesShaderProgram.shaderProgramID);
+		// Use Shader Program
+		glUseProgram(voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceShaderProgram.shaderProgramID);
+
+
+		// Render World Geometry
+		int mainCameraViewLoc = glGetUniformLocation(voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceShaderProgram.shaderProgramID, "view");
+		//Mat4x4 viewMatrix = glm::inverse(cameraTransform.GetTransformMatrix());
+		Mat4x4 viewMatrix = glm::lookAt(cameraTransform.position, glm::normalize(mainCamera.cameraPointingDirection) + cameraTransform.position, mainCamera.cameraUp);
+		glUniformMatrix4fv(mainCameraViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+		int mainCameraProjectionLoc = glGetUniformLocation(voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceShaderProgram.shaderProgramID, "projection");
+		glUniformMatrix4fv(mainCameraProjectionLoc, 1, GL_FALSE, glm::value_ptr(mainCamera.GetProjectionMatrix()));
+
+		// VVVV Rendering whole cube for each voxel takes ~5.2 MS
+		//Vector3 startingChunkPos = modelTransform.position;
+		//int numChunksToRenderOnHorizontalAxis = 8;
+		//for (int i = 0; i < numChunksToRenderOnHorizontalAxis; i++)
+		//{
+		//	for (int j = 0; j < numChunksToRenderOnHorizontalAxis; j++)
+		//	{
+		//		modelTransform.position = Vector3{ i * chunkSizeInVoxels.x, 0.0f, j * chunkSizeInVoxels.z };
+		//		RenderCubeInstance(voxelRenderingVertexAndFragmentWithCameraWithTexturesShaderProgram, modelTransform.GetTransformMatrix(), stickmanTextureIndex, simpleCubeMeshGPU, numVoxelsInChunk);
+
+		//	}
+		//}
+		//modelTransform.position = startingChunkPos;
+
+		// VVVV Rendering only visible to air faces takes ~2.4 MS
+		Vector3 startingChunkPos = modelTransform.position;
+		int numChunksToRenderOnHorizontalAxis = 8;
+		for (int i = 0; i < numChunksToRenderOnHorizontalAxis; i++)
+		{
+			for (int j = 0; j < numChunksToRenderOnHorizontalAxis; j++)
+			{
+				modelTransform.position = Vector3{ i * chunkSizeInVoxels.x, 0.0f, j * chunkSizeInVoxels.z };
+				RenderQuadInstance(voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceShaderProgram, modelTransform.GetTransformMatrix(), stickmanTextureIndex, simpleQuadMeshGPU, numVoxelsInChunk);
+
+			}
+		}
+		modelTransform.position = startingChunkPos;
+
+
+		// Render UI
 		glUseProgram(simpleVertexAndFragmentWithCameraWithTexturesShaderProgram.shaderProgramID);
 
-		//float numDegreesToTurnInASecond = 100.0f;
-		//modelTransform.rotation.y += deltaTime * (numDegreesToTurnInASecond);
-		//if (modelTransform.rotation.y > 360.0f) {
-		//	modelTransform.rotation.y = 0.0f;
-		//}
-
-		//Mat4x4 cameraViewMat = glm::lookAt(cameraTransform.position, cameraTransform.position + mainCamera.cameraPointingDirection, mainCamera.cameraUp);
-
-		//int modelLoc = glGetUniformLocation(simpleVertexAndFragmentWithCameraWithTexturesShaderProgram.shaderProgramID, "model");
-		////glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTransform.GetTransformMatrix()));
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(uiModelTransform.GetTransformMatrix()));
-
 		int viewLoc = glGetUniformLocation(simpleVertexAndFragmentWithCameraWithTexturesShaderProgram.shaderProgramID, "view");
-		//glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(cameraTransform.GetTransformMatrix()));
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(uiCameraTransform.GetTransformMatrix()));
-		//glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(cameraViewMat));
 
 		int projectionLoc = glGetUniformLocation(simpleVertexAndFragmentWithCameraWithTexturesShaderProgram.shaderProgramID, "projection");
-		//glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(mainCamera.GetProjectionMatrix()));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(uiCamera.GetProjectionMatrix()));
 
-		////glBindTexture(GL_TEXTURE_2D, Texture::textures[woodContainerTextureIndex].textureID);
-		//glBindTexture(GL_TEXTURE_2D, Texture::textures[stickmanTextureIndex].textureID);
-		//glBindVertexArray(simpleQuadMeshGPU.VAO);
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-		//std::cout << mouseX << ", " << mouseY << std::endl;
-
 		Vector2 mousePosInUISpace = ConvertMousePosToScreenUIPos(mouseX, mouseY, WINDOW_WIDTH, WINDOW_HEIGHT);
-		//std::cout << mousePosInUISpace.x << ", " << mousePosInUISpace.y << std::endl;
 		UpdateUITreeStates(UI_Rect::uiRects[rootUIRectIndex], mousePosInUISpace.x, mousePosInUISpace.y);
 		HandleUIEvents(mouseXDelta, mouseYDelta);
 		RenderUI(UI_Rect::uiRects[rootUIRectIndex], simpleVertexAndFragmentWithCameraWithTexturesShaderProgram, stickmanTextureIndex, simpleQuadMeshGPU);
 
-		//int characterIndex = static_cast<int>('c');
-		//int characterIndex = 99;	//-> C
-		//int characterIndex = 65; //-> A
-		//int characterIndex = 126; //-> ~
-		// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV MAKE NEW SHADERS FOR UI TEXT WITH Y AXIS FLIPPED!!!!!!!!!!!!
-		//RenderUIRectAndSubTree(UI_Rect::uiRects[charactersPerCharacter[characterIndex].characterUIRectIndex], UI_Rect::uiRects[rootUIRectIndex], simpleVertexAndFragmentWithCameraWithTexturesShaderProgram, charactersPerCharacter[characterIndex].textureIndex, simpleQuadMeshGPU);
-
+		// Render Text
 		glUseProgram(textRenderingVertexAndFragmentWithCameraWithTexturesShaderProgram.shaderProgramID);
 		int viewLocInTextShader = glGetUniformLocation(textRenderingVertexAndFragmentWithCameraWithTexturesShaderProgram.shaderProgramID, "view");
-		//glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(cameraTransform.GetTransformMatrix()));
 		glUniformMatrix4fv(viewLocInTextShader, 1, GL_FALSE, glm::value_ptr(uiCameraTransform.GetTransformMatrix()));
-		//glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(cameraViewMat));
 
 		int projectionLocInTextShader = glGetUniformLocation(textRenderingVertexAndFragmentWithCameraWithTexturesShaderProgram.shaderProgramID, "projection");
-		//glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(mainCamera.GetProjectionMatrix()));
 		glUniformMatrix4fv(projectionLocInTextShader, 1, GL_FALSE, glm::value_ptr(uiCamera.GetProjectionMatrix()));
 
-		Vector3 helloWorldTextPosition = { -180.0f, 0.0f, 0.0f };
-		RenderText(textRenderingVertexAndFragmentWithCameraWithTexturesShaderProgram, simpleQuadMeshGPU, "Hello World!", helloWorldTextPosition, rootUIRectIndex);
+		RenderDeltaTimeInMS(textRenderingVertexAndFragmentWithCameraWithTexturesShaderProgram, rootUIRectIndex, simpleQuadMeshGPU, deltaTime);
 
-
+		// Swap Buffers for display
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
+		// Calculate frame delta time
 		std::chrono::time_point<std::chrono::high_resolution_clock> currentTime = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<float> elapsedTime = currentTime - lastFrameEndTime;
 		deltaTime = elapsedTime.count();
 		lastFrameEndTime = currentTime;
 
+		// Reset Keyboard State for next frame
 		ResetKeysReleased();
 	}
 

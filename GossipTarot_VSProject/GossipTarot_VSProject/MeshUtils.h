@@ -20,22 +20,18 @@ void CreateMeshOnGPU(const MeshOnCPU& meshOnCPU, MeshOnGPU& meshOnGPU) {
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, meshOnCPU.vertices.size() * sizeof(meshOnCPU.vertices[0]), meshOnCPU.vertices.data(), GL_STATIC_DRAW);
 
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	//glEnableVertexAttribArray(0);
-	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	//glEnableVertexAttribArray(1);
-
-	for (int i = 0; i < MeshOnCPU::defaultVertexLayout.numVertexAttribs; i++)
+	for (int i = 0; i < meshOnCPU.vertexLayout->numVertexAttribs; i++)
 	{
-		glVertexAttribPointer(MeshOnCPU::defaultVertexLayout.vertexAttribsPositions[i],
-								MeshOnCPU::defaultVertexLayout.vertexAttribNumComponents[i],
-								GL_FLOAT,
-								GL_FALSE,
-								MeshOnCPU::defaultVertexLayout.vertexAttributeStride[i],
-								MeshOnCPU::defaultVertexLayout.pointerToFirstAttributeInVertex[i]);
+		glVertexAttribPointer(meshOnCPU.vertexLayout->vertexAttribsPositions[i],
+			meshOnCPU.vertexLayout->vertexAttribNumComponents[i],
+			GL_FLOAT,
+			GL_FALSE,
+			meshOnCPU.vertexLayout->vertexAttributeStride[i],
+			meshOnCPU.vertexLayout->pointerToFirstAttributeInVertex[i]);
 
-		glEnableVertexAttribArray(MeshOnCPU::defaultVertexLayout.vertexAttribsPositions[i]);
+		glEnableVertexAttribArray(meshOnCPU.vertexLayout->vertexAttribsPositions[i]);
 	}
+
 
 	unsigned int EBO;
 	glGenBuffers(1, &EBO);

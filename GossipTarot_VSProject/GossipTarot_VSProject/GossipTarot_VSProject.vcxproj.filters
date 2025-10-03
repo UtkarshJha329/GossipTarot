@@ -34,6 +34,10 @@
     <None Include="Assets\Shaders\SimpleShaderWithCameraWithTextures\SimpleShaderWithCameraWithTextures.vert" />
     <None Include="Assets\Shaders\TextRenderingShaderWithCameraWithTextures\TextRenderingShaderWithCameraWithTextures.frag" />
     <None Include="Assets\Shaders\TextRenderingShaderWithCameraWithTextures\TextRenderingShaderWithCameraWithTextures.vert" />
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShader\CompressedVoxelWithTexturesShader.frag" />
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShader\CompressedVoxelWithTexturesShader.vert" />
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFace\CompressedVoxelWithTexturesShaderPerFace.frag" />
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFace\CompressedVoxelWithTexturesShaderPerFace.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileHandling.h">
@@ -96,5 +100,17 @@
     <ClInclude Include="UIText.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RenderFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BakedMeshData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="FastNoise.dll" />
   </ItemGroup>
 </Project>

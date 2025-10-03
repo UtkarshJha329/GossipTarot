@@ -111,7 +111,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Libs\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib;freetype.lib;FastNoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -131,7 +131,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Libs\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib;freetype.lib;FastNoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -140,6 +140,10 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFace\CompressedVoxelWithTexturesShaderPerFace.frag" />
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFace\CompressedVoxelWithTexturesShaderPerFace.vert" />
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShader\CompressedVoxelWithTexturesShader.frag" />
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShader\CompressedVoxelWithTexturesShader.vert" />
     <None Include="Assets\Shaders\SimpleShaderNoCameraWithTextures\SimpleShaderNoCameraWithTextures.frag" />
     <None Include="Assets\Shaders\SimpleShaderNoCameraWithTextures\SimpleShaderNoCameraWithTextures.vert" />
     <None Include="Assets\Shaders\SimpleShaderNoCamera\SimpleShaderNoCamera.frag" />
@@ -148,8 +152,14 @@
     <None Include="Assets\Shaders\SimpleShaderWithCameraWithTextures\SimpleShaderWithCameraWithTextures.vert" />
     <None Include="Assets\Shaders\TextRenderingShaderWithCameraWithTextures\TextRenderingShaderWithCameraWithTextures.frag" />
     <None Include="Assets\Shaders\TextRenderingShaderWithCameraWithTextures\TextRenderingShaderWithCameraWithTextures.vert" />
+    <CopyFileToFolders Include="FastNoise.dll">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BakedMeshData.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Colour.h" />
     <ClInclude Include="FileHandling.h" />
@@ -161,6 +171,7 @@
     <ClInclude Include="MeshUtils.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelUtils.h" />
+    <ClInclude Include="RenderFunctions.h" />
     <ClInclude Include="RenderUI.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Texture.h" />
@@ -170,6 +181,7 @@
     <ClInclude Include="UISimulation.h" />
     <ClInclude Include="UIText.h" />
     <ClInclude Include="Viewport.h" />
+    <ClInclude Include="VoxelFunctions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

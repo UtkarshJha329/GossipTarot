@@ -95,9 +95,10 @@ int InitializeCharacterRects(const std::string& fontPath, int rootUIIndex) {
     return 1;
 }
 
-void RenderTextUICharacter(const Vector3& position, const int& characterUIRectIndex, const UI_Rect& parentUIRect, const ShaderProgram& shaderProgramForRendering, const int& textureIndex, const MeshOnGPU& meshOnGPU) {
+void RenderTextUICharacter(const Vector3& position, const AnchorPosition& anchorPosition, const int& characterUIRectIndex, const UI_Rect& parentUIRect, const ShaderProgram& shaderProgramForRendering, const int& textureIndex, const MeshOnGPU& meshOnGPU) {
 
     UI_Rect uiRect = UI_Rect::uiRects[characterUIRectIndex];
+    uiRect.anchorPosition = anchorPosition;
 
     Vector3 start = uiRect.start;
     Vector3 end = uiRect.end;
@@ -111,7 +112,7 @@ void RenderTextUICharacter(const Vector3& position, const int& characterUIRectIn
     RenderQuad(shaderProgramForRendering, uiRectTransformMatrix, textureIndex, meshOnGPU);
 }
 
-void RenderText(const ShaderProgram& shaderProgramForRendering, const MeshOnGPU& meshToRenderWith, const std::string text, const Vector3& textPosition, const int& rootUIIndex)
+void RenderText(const ShaderProgram& shaderProgramForRendering, const AnchorPosition& anchorPositionOfText, const MeshOnGPU& meshToRenderWith, const std::string text, const Vector3& textPosition, const int& rootUIIndex)
 {
     int x = textPosition.x;
     int y = textPosition.y;
@@ -128,7 +129,7 @@ void RenderText(const ShaderProgram& shaderProgramForRendering, const MeshOnGPU&
 
         Vector3 positionOffsetOfCharacterRect = { x + currentCharacter.bearing.x, yPos, textPosition.z };
 
-        RenderTextUICharacter(positionOffsetOfCharacterRect, currentCharacter.characterUIRectIndex, UI_Rect::uiRects[rootUIIndex], shaderProgramForRendering, currentCharacter.textureIndex, meshToRenderWith);
+        RenderTextUICharacter(positionOffsetOfCharacterRect, anchorPositionOfText, currentCharacter.characterUIRectIndex, UI_Rect::uiRects[rootUIIndex], shaderProgramForRendering, currentCharacter.textureIndex, meshToRenderWith);
 
         x += (currentCharacter.advance >> 6); // bitshift by 6 to get value in pixels (2^6 = 64)
     }

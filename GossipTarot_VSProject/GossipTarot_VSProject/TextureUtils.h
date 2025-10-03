@@ -5,12 +5,12 @@
 
 #include "Texture.h"
 
-int TextureFromFile(std::string& path)
+int TextureFromFile(std::string& path, bool flipTexture = false)
 {
     unsigned int textureID;
     glGenTextures(1, &textureID);
 
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(flipTexture);
 
     int width, height, nrComponents;
     unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);

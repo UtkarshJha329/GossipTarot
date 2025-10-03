@@ -36,16 +36,16 @@
 enum class KeyCode {
 	
 	// Keyboard buttons.
-	KEY_W					= 87,
-	KEY_S					= 83,
-	KEY_D					= 68,
+	KEY_SPACE				= 32,
 	KEY_A					= 65,
+	KEY_D					= 68,
+	KEY_E					= 69,
+	KEY_P					= 80,
+	KEY_Q					= 81,
+	KEY_S					= 83,
+	KEY_W					= 87,
 	KEY_LEFT_SHIFT			= 340,
 	KEY_LEFT_CTRL			= 341,
-	KEY_SPACE				= 32,
-	KEY_P					= 80,
-	KEY_I					= 73,
-	KEY_O					= 79,
 	// Function Keys
 	KEY_ESCAPE				= 256,
 	// Mouse buttons
@@ -91,10 +91,10 @@ int KeyIndex(KeyCode keyCode) {
 	else if (keyCode == KeyCode::KEY_P) {
 		return 9;
 	}
-	else if (keyCode == KeyCode::KEY_I) {
+	else if (keyCode == KeyCode::KEY_Q) {
 		return 10;
 	}
-	else if (keyCode == KeyCode::KEY_O) {
+	else if (keyCode == KeyCode::KEY_E) {
 		return 11;
 	}
 	else if (keyCode == KeyCode::KEY_ESCAPE) {
@@ -166,6 +166,8 @@ void ResetKeysReleased() {
 	keyReleasedInThisFrame[KeyIndex(KeyCode::KEY_D)] = false;
 	keyReleasedInThisFrame[KeyIndex(KeyCode::KEY_A)] = false;
 	keyReleasedInThisFrame[KeyIndex(KeyCode::KEY_P)] = false;
+	keyReleasedInThisFrame[KeyIndex(KeyCode::KEY_Q)] = false;
+	keyReleasedInThisFrame[KeyIndex(KeyCode::KEY_E)] = false;
 	keyReleasedInThisFrame[KeyIndex(KeyCode::KEY_ESCAPE)] = false;
 
 	keyReleasedInThisFrame[KeyIndex(KeyCode::MOUSE_BUTTON_LEFT)] = false;

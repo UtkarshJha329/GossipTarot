@@ -7,22 +7,7 @@
 #include "GlobalConstants.h"
 #include "UISimulation.h"
 
-#include "Shader.h"
-#include "Transform.h"
-#include "MeshOnGpu.h"
-
-void RenderQuad(const ShaderProgram& shaderForRendering, const Mat4x4& quadTransformMatrix, const int& textureIndex, const MeshOnGPU& meshOnGPU) {
-
-	int modelLoc = glGetUniformLocation(shaderForRendering.shaderProgramID, "model");
-	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTransform.GetTransformMatrix()));
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(quadTransformMatrix));
-
-	//glBindTexture(GL_TEXTURE_2D, Texture::textures[woodContainerTextureIndex].textureID);
-	glBindTexture(GL_TEXTURE_2D, Texture::textures[textureIndex].textureID);
-	glBindVertexArray(meshOnGPU.VAO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-}
+#include "RenderFunctions.h"
 
 Mat4x4 MatrixOfUIRectToRender(const UI_Rect& uiRectToRender) {
 
