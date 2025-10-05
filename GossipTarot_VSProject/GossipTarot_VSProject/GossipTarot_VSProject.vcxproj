@@ -140,6 +140,12 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle.frag" />
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle.vert" />
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceVBODataAsTriangle\CompressedVoxelWithTexturesShaderPerFaceVBODataAsTriangle.frag" />
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceVBODataAsTriangle\CompressedVoxelWithTexturesShaderPerFaceVBODataAsTriangle.vert" />
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceVBOData\CompressedVoxelWithTexturesShaderPerFaceVBOData.frag" />
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceVBOData\CompressedVoxelWithTexturesShaderPerFaceVBOData.vert" />
     <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFace\CompressedVoxelWithTexturesShaderPerFace.frag" />
     <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFace\CompressedVoxelWithTexturesShaderPerFace.vert" />
     <None Include="Assets\Shaders\CompressedVoxelWithTexturesShader\CompressedVoxelWithTexturesShader.frag" />

@@ -87,13 +87,13 @@ bool NoiseExistsInNeighbour(const std::vector<float>& chunkNoise, const Vector3I
 	return false;
 }
 
-void AddBitShiftFaceIDToCompressedVoxelPosition(std::vector<unsigned int>& compressedChunkVoxelPositions, unsigned int curVoxelCompactPos, const unsigned int& bitshiftedFaceID, unsigned int& numVoxelsInChunk) {
+void AddBitShiftFaceIDToCompressedVoxelPosition(std::vector<unsigned int>& compressedChunkVoxelPositions, unsigned int curVoxelCompactPos, const unsigned int& bitshiftedFaceID, unsigned int& numQuadsInChunk) {
 	curVoxelCompactPos += bitshiftedFaceID;
 	compressedChunkVoxelPositions.push_back(curVoxelCompactPos);
-	numVoxelsInChunk++;
+	numQuadsInChunk++;
 }
 
-void GenerateChunkVoxelPositionsOnGPUAsVBO(const MeshOnGPU& meshOnGPU, unsigned int& numVoxelsInChunk, const std::vector<float>& chunkNoise, const Vector3Int& chunkSizeInVoxels) {
+void GenerateChunkVoxelInstancePositionsOnGPUAsVBO(const MeshOnGPU& meshOnGPU, unsigned int& numQuadsInChunk, const std::vector<float>& chunkNoise, const Vector3Int& chunkSizeInVoxels) {
 
 	const unsigned int bitShiftPosX = 0;
 	const unsigned int bitShiftPosY = 5;
@@ -107,7 +107,7 @@ void GenerateChunkVoxelPositionsOnGPUAsVBO(const MeshOnGPU& meshOnGPU, unsigned 
 	const unsigned int bitShiftFaceIDFront = 4;
 	const unsigned int bitShiftFaceIDBack = 5;
 
-	numVoxelsInChunk = 0;
+	numQuadsInChunk = 0;
 	std::vector<unsigned int> compressedChunkVoxelPositions;
 
 	for (int z = 0; z < chunkSizeInVoxels.z; z++) {
@@ -122,23 +122,23 @@ void GenerateChunkVoxelPositionsOnGPUAsVBO(const MeshOnGPU& meshOnGPU, unsigned 
 					curVoxelCompactPos += (y << bitShiftPosY);
 					curVoxelCompactPos += (z << bitShiftPosZ);
 
-					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{x, y, z}, Vector3Int{0, 1, 0})) {
-						AddBitShiftFaceIDToCompressedVoxelPosition(compressedChunkVoxelPositions, curVoxelCompactPos, (bitShiftFaceIDTop << bitShiftPosFace), numVoxelsInChunk);
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, 1, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPosition(compressedChunkVoxelPositions, curVoxelCompactPos, (bitShiftFaceIDTop << bitShiftPosFace), numQuadsInChunk);
 					}
-					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{x, y, z}, Vector3Int{0, -1, 0})) {
-						AddBitShiftFaceIDToCompressedVoxelPosition(compressedChunkVoxelPositions, curVoxelCompactPos, (bitShiftFaceIDBottom << bitShiftPosFace), numVoxelsInChunk);
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, -1, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPosition(compressedChunkVoxelPositions, curVoxelCompactPos, (bitShiftFaceIDBottom << bitShiftPosFace), numQuadsInChunk);
 					}
-					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{x, y, z}, Vector3Int{-1, 0, 0})) {
-						AddBitShiftFaceIDToCompressedVoxelPosition(compressedChunkVoxelPositions, curVoxelCompactPos, (bitShiftFaceIDLeft << bitShiftPosFace), numVoxelsInChunk);
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ -1, 0, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPosition(compressedChunkVoxelPositions, curVoxelCompactPos, (bitShiftFaceIDLeft << bitShiftPosFace), numQuadsInChunk);
 					}
-					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{x, y, z}, Vector3Int{1, 0, 0})) {
-						AddBitShiftFaceIDToCompressedVoxelPosition(compressedChunkVoxelPositions, curVoxelCompactPos, (bitShiftFaceIDRight << bitShiftPosFace), numVoxelsInChunk);
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 1, 0, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPosition(compressedChunkVoxelPositions, curVoxelCompactPos, (bitShiftFaceIDRight << bitShiftPosFace), numQuadsInChunk);
 					}
-					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{x, y, z}, Vector3Int{0, 0, 1})) {
-						AddBitShiftFaceIDToCompressedVoxelPosition(compressedChunkVoxelPositions, curVoxelCompactPos, (bitShiftFaceIDFront << bitShiftPosFace), numVoxelsInChunk);
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, 0, 1 })) {
+						AddBitShiftFaceIDToCompressedVoxelPosition(compressedChunkVoxelPositions, curVoxelCompactPos, (bitShiftFaceIDFront << bitShiftPosFace), numQuadsInChunk);
 					}
-					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{x, y, z}, Vector3Int{0, 0, -1})) {
-						AddBitShiftFaceIDToCompressedVoxelPosition(compressedChunkVoxelPositions, curVoxelCompactPos, (bitShiftFaceIDBack << bitShiftPosFace), numVoxelsInChunk);
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, 0, -1 })) {
+						AddBitShiftFaceIDToCompressedVoxelPosition(compressedChunkVoxelPositions, curVoxelCompactPos, (bitShiftFaceIDBack << bitShiftPosFace), numQuadsInChunk);
 					}
 				}
 			}
@@ -153,7 +153,285 @@ void GenerateChunkVoxelPositionsOnGPUAsVBO(const MeshOnGPU& meshOnGPU, unsigned 
 
 	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, voxelPositionsInstanceVBO);
-	glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, GL_FALSE, (void*)0);
+	glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, 0, (void*)0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glVertexAttribDivisor(2, 1);
+}
+
+
+
+
+void AddBitShiftFaceIDToCompressedVoxelPositionAlongWithExtra3Vertices(std::vector<unsigned int>& compressedChunkVoxelPositions, std::vector<unsigned int>& indices, unsigned int curVoxelCompactPos, const unsigned int& bitshiftedFaceID) {
+
+	curVoxelCompactPos += bitshiftedFaceID;
+
+	unsigned int initialIndex = compressedChunkVoxelPositions.size();
+	compressedChunkVoxelPositions.push_back(curVoxelCompactPos);
+	compressedChunkVoxelPositions.push_back(curVoxelCompactPos);
+	compressedChunkVoxelPositions.push_back(curVoxelCompactPos);
+	compressedChunkVoxelPositions.push_back(curVoxelCompactPos);
+
+	indices.push_back(initialIndex + 0);
+	indices.push_back(initialIndex + 1);
+	indices.push_back(initialIndex + 2);
+	indices.push_back(initialIndex + 2);
+	indices.push_back(initialIndex + 3);
+	indices.push_back(initialIndex + 0);
+}
+
+void GenerateChunkVoxelPositionsOnGPUAsVBO(MeshOnGPU& meshOnGPU, unsigned int& numIndicesInChunk, const std::vector<float>& chunkNoise, const Vector3Int& chunkSizeInVoxels) {
+
+	const unsigned int bitShiftPosX = 0;
+	const unsigned int bitShiftPosY = 5;
+	const unsigned int bitShiftPosZ = 10;
+	const unsigned int bitShiftPosFace = 15;
+
+	//const unsigned int bitShiftPosX = 0;
+	//const unsigned int bitShiftPosY = 6;
+	//const unsigned int bitShiftPosZ = 12;
+	//const unsigned int bitShiftPosFace = 18;
+
+	const unsigned int bitShiftFaceIDTop = 0;
+	const unsigned int bitShiftFaceIDBottom = 1;
+	const unsigned int bitShiftFaceIDLeft = 2;
+	const unsigned int bitShiftFaceIDRight = 3;
+	const unsigned int bitShiftFaceIDFront = 4;
+	const unsigned int bitShiftFaceIDBack = 5;
+
+	numIndicesInChunk = 0;
+	std::vector<unsigned int> compressedChunkVoxelPositions;
+	std::vector<unsigned int> indices;
+
+	for (int z = 0; z < chunkSizeInVoxels.z; z++) {
+		for (int x = 0; x < chunkSizeInVoxels.x; x++) {
+			int currentNoiseIndex = x + (z * chunkSizeInVoxels.x);
+			float voxelHeight = chunkNoise[currentNoiseIndex] * chunkSizeInVoxels.y;
+
+			for (int y = 0; y < chunkSizeInVoxels.y; y++)
+			{
+				if (y <= voxelHeight) {
+					unsigned int curVoxelCompactPos = (x << bitShiftPosX);
+					curVoxelCompactPos += (y << bitShiftPosY);
+					curVoxelCompactPos += (z << bitShiftPosZ);
+
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, 1, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAlongWithExtra3Vertices(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDTop << bitShiftPosFace));
+					}
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, -1, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAlongWithExtra3Vertices(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDBottom << bitShiftPosFace));
+					}
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ -1, 0, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAlongWithExtra3Vertices(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDLeft << bitShiftPosFace));
+					}
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 1, 0, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAlongWithExtra3Vertices(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDRight << bitShiftPosFace));
+					}
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, 0, 1 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAlongWithExtra3Vertices(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDFront << bitShiftPosFace));
+					}
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, 0, -1 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAlongWithExtra3Vertices(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDBack << bitShiftPosFace));
+					}
+				}
+			}
+		}
+	}
+
+	glGenVertexArrays(1, &meshOnGPU.VAO);
+	glBindVertexArray(meshOnGPU.VAO);
+
+	glBindVertexArray(meshOnGPU.VAO);
+	glGenBuffers(1, &meshOnGPU.VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, meshOnGPU.VBO);
+	glBufferData(GL_ARRAY_BUFFER, compressedChunkVoxelPositions.size() * sizeof(compressedChunkVoxelPositions[0]), compressedChunkVoxelPositions.data(), GL_STATIC_DRAW);
+
+	glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, 0, (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glGenBuffers(1, &meshOnGPU.EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, meshOnGPU.EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]), indices.data(), GL_STATIC_DRAW);
+
+	numIndicesInChunk = indices.size();
+}
+
+
+
+
+
+void AddBitShiftFaceIDToCompressedVoxelPositionAsTriangle(std::vector<unsigned int>& compressedChunkVoxelPositions, std::vector<unsigned int>& indices, unsigned int curVoxelCompactPos, const unsigned int& bitshiftedFaceID) {
+
+	curVoxelCompactPos += bitshiftedFaceID;
+
+	unsigned int initialIndex = compressedChunkVoxelPositions.size();
+	compressedChunkVoxelPositions.push_back(curVoxelCompactPos);
+	compressedChunkVoxelPositions.push_back(curVoxelCompactPos);
+	compressedChunkVoxelPositions.push_back(curVoxelCompactPos);
+
+	indices.push_back(initialIndex + 0);
+	indices.push_back(initialIndex + 1);
+	indices.push_back(initialIndex + 2);
+}
+
+void GenerateChunkVoxelPositionsOnGPUAsVBOAsTriangle(MeshOnGPU& meshOnGPU, unsigned int& numIndicesInChunk, const std::vector<float>& chunkNoise, const Vector3Int& chunkSizeInVoxels) {
+
+	const unsigned int bitShiftPosX = 0;
+	const unsigned int bitShiftPosY = 5;
+	const unsigned int bitShiftPosZ = 10;
+	const unsigned int bitShiftPosFace = 15;
+
+	//const unsigned int bitShiftPosX = 0;
+	//const unsigned int bitShiftPosY = 6;
+	//const unsigned int bitShiftPosZ = 12;
+	//const unsigned int bitShiftPosFace = 18;
+
+	const unsigned int bitShiftFaceIDTop = 0;
+	const unsigned int bitShiftFaceIDBottom = 1;
+	const unsigned int bitShiftFaceIDLeft = 2;
+	const unsigned int bitShiftFaceIDRight = 3;
+	const unsigned int bitShiftFaceIDFront = 4;
+	const unsigned int bitShiftFaceIDBack = 5;
+
+	numIndicesInChunk = 0;
+	std::vector<unsigned int> compressedChunkVoxelPositions;
+	std::vector<unsigned int> indices;
+
+	for (int z = 0; z < chunkSizeInVoxels.z; z++) {
+		for (int x = 0; x < chunkSizeInVoxels.x; x++) {
+			int currentNoiseIndex = x + (z * chunkSizeInVoxels.x);
+			float voxelHeight = chunkNoise[currentNoiseIndex] * chunkSizeInVoxels.y;
+
+			for (int y = 0; y < chunkSizeInVoxels.y; y++)
+			{
+				if (y <= voxelHeight) {
+					unsigned int curVoxelCompactPos = (x << bitShiftPosX);
+					curVoxelCompactPos += (y << bitShiftPosY);
+					curVoxelCompactPos += (z << bitShiftPosZ);
+
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, 1, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAsTriangle(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDTop << bitShiftPosFace));
+					}
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, -1, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAsTriangle(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDBottom << bitShiftPosFace));
+					}
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ -1, 0, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAsTriangle(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDLeft << bitShiftPosFace));
+					}
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 1, 0, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAsTriangle(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDRight << bitShiftPosFace));
+					}
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, 0, 1 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAsTriangle(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDFront << bitShiftPosFace));
+					}
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, 0, -1 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAsTriangle(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDBack << bitShiftPosFace));
+					}
+				}
+			}
+		}
+	}
+
+	glGenVertexArrays(1, &meshOnGPU.VAO);
+	glBindVertexArray(meshOnGPU.VAO);
+
+	glBindVertexArray(meshOnGPU.VAO);
+	glGenBuffers(1, &meshOnGPU.VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, meshOnGPU.VBO);
+	glBufferData(GL_ARRAY_BUFFER, compressedChunkVoxelPositions.size() * sizeof(compressedChunkVoxelPositions[0]), compressedChunkVoxelPositions.data(), GL_STATIC_DRAW);
+
+	glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, 0, (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glGenBuffers(1, &meshOnGPU.EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, meshOnGPU.EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]), indices.data(), GL_STATIC_DRAW);
+
+	numIndicesInChunk = indices.size();
+}
+
+void GenerateChunkVoxelPositionsOnGPUAsSSBOAsTriangle(const std::vector<float>& chunkNoise, const Vector3Int& chunkSizeInVoxels, MeshOnGPU& meshOnGPU, unsigned int& numIndicesInChunk, unsigned int& megaVoxelsQuadPositionsBufferObjectID) {
+
+	const unsigned int bitShiftPosX = 0;
+	const unsigned int bitShiftPosY = 5;
+	const unsigned int bitShiftPosZ = 10;
+	const unsigned int bitShiftPosFace = 15;
+
+	//const unsigned int bitShiftPosX = 0;
+	//const unsigned int bitShiftPosY = 6;
+	//const unsigned int bitShiftPosZ = 12;
+	//const unsigned int bitShiftPosFace = 18;
+
+	const unsigned int bitShiftFaceIDTop = 0;
+	const unsigned int bitShiftFaceIDBottom = 1;
+	const unsigned int bitShiftFaceIDLeft = 2;
+	const unsigned int bitShiftFaceIDRight = 3;
+	const unsigned int bitShiftFaceIDFront = 4;
+	const unsigned int bitShiftFaceIDBack = 5;
+
+	numIndicesInChunk = 0;
+	std::vector<unsigned int> compressedChunkVoxelPositions;
+	std::vector<unsigned int> indices;
+
+	for (int z = 0; z < chunkSizeInVoxels.z; z++) {
+		for (int x = 0; x < chunkSizeInVoxels.x; x++) {
+			int currentNoiseIndex = x + (z * chunkSizeInVoxels.x);
+			float voxelHeight = chunkNoise[currentNoiseIndex] * chunkSizeInVoxels.y;
+
+			for (int y = 0; y < chunkSizeInVoxels.y; y++)
+			{
+				if (y <= voxelHeight) {
+					unsigned int curVoxelCompactPos = (x << bitShiftPosX);
+					curVoxelCompactPos += (y << bitShiftPosY);
+					curVoxelCompactPos += (z << bitShiftPosZ);
+
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, 1, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAsTriangle(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDTop << bitShiftPosFace));
+					}
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, -1, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAsTriangle(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDBottom << bitShiftPosFace));
+					}
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ -1, 0, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAsTriangle(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDLeft << bitShiftPosFace));
+					}
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 1, 0, 0 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAsTriangle(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDRight << bitShiftPosFace));
+					}
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, 0, 1 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAsTriangle(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDFront << bitShiftPosFace));
+					}
+					if (!NoiseExistsInNeighbour(chunkNoise, chunkSizeInVoxels, Vector3Int{ x, y, z }, Vector3Int{ 0, 0, -1 })) {
+						AddBitShiftFaceIDToCompressedVoxelPositionAsTriangle(compressedChunkVoxelPositions, indices, curVoxelCompactPos, (bitShiftFaceIDBack << bitShiftPosFace));
+					}
+				}
+			}
+		}
+	}
+
+	glGenVertexArrays(1, &meshOnGPU.VAO);
+	glBindVertexArray(meshOnGPU.VAO);
+
+	glGenBuffers(1, &meshOnGPU.EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, meshOnGPU.EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]), indices.data(), GL_STATIC_DRAW);
+
+	numIndicesInChunk = indices.size();
+
+	size_t sizeOfQuadPositionsBufferInBytes = compressedChunkVoxelPositions.size() * sizeof(compressedChunkVoxelPositions[0]);
+	glCreateBuffers(1, &megaVoxelsQuadPositionsBufferObjectID);
+	glNamedBufferStorage(megaVoxelsQuadPositionsBufferObjectID, sizeOfQuadPositionsBufferInBytes, nullptr,
+		GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+
+	// Map once
+	void* megaVoxelsQuadPositionsBufferGPUPointer = glMapNamedBufferRange(
+		megaVoxelsQuadPositionsBufferObjectID, 0, sizeOfQuadPositionsBufferInBytes,
+		GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT
+	);
+
+	memcpy(megaVoxelsQuadPositionsBufferGPUPointer, compressedChunkVoxelPositions.data(), sizeOfQuadPositionsBufferInBytes);
+
+	glUnmapNamedBuffer(megaVoxelsQuadPositionsBufferObjectID);
 }
