@@ -32,6 +32,7 @@
 
 #include "BakedMeshData.h"
 #include "VoxelFunctions.h"
+#include "ChunkGeneration.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -244,20 +245,35 @@ int main() {
 
 	//voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceVBODataAsTriangleShaderProgram.CreateShaderProgram(shadersForVoxelPerFaceVBODataAsTriangleRenderingShaderProgram);
 
-	Shader voxelRenderingVertexShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle;
-	voxelRenderingVertexShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle.shaderFilePath = "Assets/Shaders/CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle/CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle.vert";
-	voxelRenderingVertexShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle.shaderType = SHADER_TYPE::VERTEX_SHADER;
-	voxelRenderingVertexShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle.CreateShader();
+	//Shader voxelRenderingVertexShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle;
+	//voxelRenderingVertexShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle.shaderFilePath = "Assets/Shaders/CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle/CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle.vert";
+	//voxelRenderingVertexShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle.shaderType = SHADER_TYPE::VERTEX_SHADER;
+	//voxelRenderingVertexShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle.CreateShader();
 
-	Shader voxelRenderingFragmentShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle;
-	voxelRenderingFragmentShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle.shaderFilePath = "Assets/Shaders/CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle/CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle.frag";
-	voxelRenderingFragmentShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle.shaderType = SHADER_TYPE::FRAGMENT_SHADER;
-	voxelRenderingFragmentShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle.CreateShader();
+	//Shader voxelRenderingFragmentShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle;
+	//voxelRenderingFragmentShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle.shaderFilePath = "Assets/Shaders/CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle/CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle.frag";
+	//voxelRenderingFragmentShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle.shaderType = SHADER_TYPE::FRAGMENT_SHADER;
+	//voxelRenderingFragmentShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle.CreateShader();
 
-	std::vector<Shader> shadersForVoxelPerFaceSSBODataAsTriangleRenderingShaderProgram = { voxelRenderingVertexShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle, voxelRenderingFragmentShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle };
-	ShaderProgram voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleShaderProgram;
+	//std::vector<Shader> shadersForVoxelPerFaceSSBODataAsTriangleRenderingShaderProgram = { voxelRenderingVertexShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle, voxelRenderingFragmentShaderWithCameraWithTexturesPerFaceSSBODataAsTriangle };
+	//ShaderProgram voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleShaderProgram;
 
-	voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleShaderProgram.CreateShaderProgram(shadersForVoxelPerFaceSSBODataAsTriangleRenderingShaderProgram);
+	//voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleShaderProgram.CreateShaderProgram(shadersForVoxelPerFaceSSBODataAsTriangleRenderingShaderProgram);
+
+	Shader voxelVertexShaderWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDraw;
+	voxelVertexShaderWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDraw.shaderFilePath = "Assets/Shaders/CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw/VoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw.vert";
+	voxelVertexShaderWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDraw.shaderType = SHADER_TYPE::VERTEX_SHADER;
+	voxelVertexShaderWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDraw.CreateShader();
+
+	Shader voxelFragmentShaderWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDraw;
+	voxelFragmentShaderWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDraw.shaderFilePath = "Assets/Shaders/CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw/VoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw.frag";
+	voxelFragmentShaderWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDraw.shaderType = SHADER_TYPE::FRAGMENT_SHADER;
+	voxelFragmentShaderWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDraw.CreateShader();
+
+	std::vector<Shader> shadersForVoxelPerFaceSSBODataAsTriangleIndirectDrawShaderProgram = { voxelVertexShaderWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDraw, voxelFragmentShaderWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDraw };
+	ShaderProgram voxelVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDrawShaderProgram;
+
+	voxelVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDrawShaderProgram.CreateShaderProgram(shadersForVoxelPerFaceSSBODataAsTriangleIndirectDrawShaderProgram);
 
 
 	MeshOnCPU simpleQuadMeshCPU;
@@ -377,17 +393,18 @@ int main() {
 
 
 
-	auto fnSimplex = FastNoise::New<FastNoise::Simplex>();
-	auto fnFractal = FastNoise::New<FastNoise::FractalFBm>();
+	//auto fnSimplex = FastNoise::New<FastNoise::Simplex>();
+	//auto fnFractal = FastNoise::New<FastNoise::FractalFBm>();
 
-	fnFractal->SetSource(fnSimplex);
-	fnFractal->SetOctaveCount(5);
+	//fnFractal->SetSource(fnSimplex);
+	//fnFractal->SetOctaveCount(5);
 
+	Vector3Int worldSizeInChunks = { 16, 1, 16 };
 	Vector3Int chunkSizeInVoxels = { 32, 32, 32 };
 	//Vector3Int chunkSizeInVoxels = { 64, 64, 64 };
-	std::vector<float> noiseOutput(chunkSizeInVoxels.x * chunkSizeInVoxels.z);
+	//std::vector<float> noiseOutput(chunkSizeInVoxels.x * chunkSizeInVoxels.z);
 
-	fnFractal->GenUniformGrid2D(noiseOutput.data(), 0, 0, chunkSizeInVoxels.x, chunkSizeInVoxels.z, 0.2f, 1337);
+	//fnFractal->GenUniformGrid2D(noiseOutput.data(), 0, 0, chunkSizeInVoxels.x, chunkSizeInVoxels.z, 0.2f, 1337);
 
 	//unsigned int numVoxelsInChunk = 0;
 	//GenerateChunkVoxelPositionsOnGPUAsVBO(simpleCubeMeshGPU, numVoxelsInChunk, noiseOutput, chunkSizeInVoxels);
@@ -402,13 +419,39 @@ int main() {
 	//MeshOnGPU chunkMeshOnGPU;
 	//GenerateChunkVoxelPositionsOnGPUAsVBOAsTriangle(chunkMeshOnGPU, numIndicesInChunk, noiseOutput, chunkSizeInVoxels);
 
-	unsigned int numIndicesInChunk = 0;
-	unsigned int megaVoxelsQuadPositionsBufferObjectID = 0;
-	unsigned int megaVoxelsQuadPositionsBufferObjectBindingLocation = 2;
-	MeshOnGPU chunkMeshOnGPU;
-	GenerateChunkVoxelPositionsOnGPUAsSSBOAsTriangle(noiseOutput, chunkSizeInVoxels, chunkMeshOnGPU, numIndicesInChunk, megaVoxelsQuadPositionsBufferObjectID);
+	//unsigned int numIndicesInChunk = 0;
+	//unsigned int megaVoxelsQuadPositionsBufferObjectID = 0;
+	//unsigned int megaVoxelsQuadPositionsBufferObjectBindingLocation = 2;
+	//MeshOnGPU chunkMeshOnGPU;
+	//GenerateChunkVoxelPositionsOnGPUAsSSBOAsTriangle(noiseOutput, chunkSizeInVoxels, chunkMeshOnGPU, numIndicesInChunk, megaVoxelsQuadPositionsBufferObjectID);
 
-	// TODO 1 : Remove vertices VBO and make an overall SSBO
+	unsigned int numVoxelDatasPerBucket = chunkSizeInVoxels.x * chunkSizeInVoxels.y * chunkSizeInVoxels.z;
+	unsigned int numBuckets = worldSizeInChunks.x * worldSizeInChunks.y * worldSizeInChunks.z;
+	unsigned int megaVoxelsDataBufferObjectBindingLocation = 2;
+	VoxelsDataPool voxelsDataPool(numVoxelDatasPerBucket, numBuckets, megaVoxelsDataBufferObjectBindingLocation);
+
+	//unsigned int numIndicesInChunk = 0;
+	//MeshOnGPU chunkMeshOnGPU;
+	//ChunkVoxelsDataPoolMetadata chunkVoxelsDataPoolMetadata;
+	//GenerateChunkVoxelPositionsOnGPUAsSSBOAsTriangleWithVoxelDataPool(noiseOutput, chunkSizeInVoxels, voxelsDataPool, chunkMeshOnGPU, numIndicesInChunk, chunkVoxelsDataPoolMetadata);
+
+	//unsigned int numIndicesInChunk = 0;
+	//MeshOnGPU chunkMeshOnGPU;
+	//ChunkVoxelsDataPoolMetadata chunkVoxelsDataPoolMetadata;
+	//GenerateChunkVoxelPositionsOnGPUAsSSBOAsTriangleWithVoxelDataPool(noiseOutput, chunkSizeInVoxels, voxelsDataPool, chunkMeshOnGPU, numIndicesInChunk, chunkVoxelsDataPoolMetadata);
+
+
+	IndirectDrawCommands chunksIndirectDrawCommands;
+	//AddChunkToDrawCommand(Vector3Int{ 1, 0, 1 }, chunkVoxelsDataPoolMetadata, chunksIndirectDrawCommands);
+
+	MeshOnGPU commonChunkMeshOnGPU;
+	GenerateCommonChunkMeshOnGPU(chunkSizeInVoxels, commonChunkMeshOnGPU);
+	
+	GenerateChunksAndAddToIndirectRenderCommandVectorOnCPU(worldSizeInChunks, chunkSizeInVoxels, voxelsDataPool, chunksIndirectDrawCommands);
+	chunksIndirectDrawCommands.GPU_InitCommandBuffer();
+
+	//chunksIndirectDrawCommands.GPU_InitCommandBuffer();
+
 	// TODO 2 : Make Multi Draw Elements Indirect Command
 
 
@@ -478,15 +521,15 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Use Shader Program
-		glUseProgram(voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleShaderProgram.shaderProgramID);
+		glUseProgram(voxelVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDrawShaderProgram.shaderProgramID);
 
 
 		// Render World Geometry
-		int mainCameraViewLoc = glGetUniformLocation(voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleShaderProgram.shaderProgramID, "view");
+		int mainCameraViewLoc = glGetUniformLocation(voxelVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDrawShaderProgram.shaderProgramID, "view");
 		//Mat4x4 viewMatrix = glm::inverse(cameraTransform.GetTransformMatrix());
 		Mat4x4 viewMatrix = glm::lookAt(cameraTransform.position, glm::normalize(mainCamera.cameraPointingDirection) + cameraTransform.position, mainCamera.cameraUp);
 		glUniformMatrix4fv(mainCameraViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-		int mainCameraProjectionLoc = glGetUniformLocation(voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleShaderProgram.shaderProgramID, "projection");
+		int mainCameraProjectionLoc = glGetUniformLocation(voxelVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDrawShaderProgram.shaderProgramID, "projection");
 		glUniformMatrix4fv(mainCameraProjectionLoc, 1, GL_FALSE, glm::value_ptr(mainCamera.GetProjectionMatrix()));
 
 		// VVVV Rendering whole cube for each voxel takes ~5.2 MS
@@ -545,17 +588,21 @@ int main() {
 		//}
 		//modelTransform.position = startingChunkPos;
 
-		Vector3 startingChunkPos = modelTransform.position;
-		int numChunksToRenderOnHorizontalAxis = 8;
-		for (int i = 0; i < numChunksToRenderOnHorizontalAxis; i++)
-		{
-			for (int j = 0; j < numChunksToRenderOnHorizontalAxis; j++)
-			{
-				modelTransform.position = Vector3{ i * chunkSizeInVoxels.x, 0.0f, j * chunkSizeInVoxels.z };
-				RenderMeshOnGPUWithNumIndicesAndSSBO(voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleShaderProgram, modelTransform.GetTransformMatrix(), stickmanTextureIndex, chunkMeshOnGPU, numIndicesInChunk, megaVoxelsQuadPositionsBufferObjectID, megaVoxelsQuadPositionsBufferObjectBindingLocation);
-			}
-		}
-		modelTransform.position = startingChunkPos;
+		//Vector3 startingChunkPos = modelTransform.position;
+		//int numChunksToRenderOnHorizontalAxis = 8;
+		//for (int i = 0; i < numChunksToRenderOnHorizontalAxis; i++)
+		//{
+		//	for (int j = 0; j < numChunksToRenderOnHorizontalAxis; j++)
+		//	{
+		//		modelTransform.position = Vector3{ i * chunkSizeInVoxels.x, 0.0f, j * chunkSizeInVoxels.z };
+		//		RenderMeshOnGPUWithNumIndicesAndSSBO(voxelRenderingVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleShaderProgram, modelTransform.GetTransformMatrix(), stickmanTextureIndex, chunkMeshOnGPU, numIndicesInChunk, voxelsDataPool.megaVoxelsDataBufferObjectID, voxelsDataPool.megaVoxelsDataBufferObjectBindingLocation);
+		//	}
+		//}
+		//modelTransform.position = startingChunkPos;
+
+		//RenderMeshOnGPUWithDrawElementsIndirectCommands(voxelVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDrawShaderProgram, modelTransform.GetTransformMatrix(), stickmanTextureIndex, chunkMeshOnGPU, chunksIndirectDrawCommands, voxelsDataPool.megaVoxelsDataBufferObjectID, voxelsDataPool.megaVoxelsDataBufferObjectBindingLocation);
+
+		RenderMeshOnGPUWithDrawElementsIndirectCommands(voxelVertexAndFragmentWithCameraWithTexturesPerFaceSSBODataAsTriangleIndirectDrawShaderProgram, modelTransform.GetTransformMatrix(), stickmanTextureIndex, commonChunkMeshOnGPU, chunksIndirectDrawCommands, voxelsDataPool.megaVoxelsDataBufferObjectID, voxelsDataPool.megaVoxelsDataBufferObjectBindingLocation);
 
 
 

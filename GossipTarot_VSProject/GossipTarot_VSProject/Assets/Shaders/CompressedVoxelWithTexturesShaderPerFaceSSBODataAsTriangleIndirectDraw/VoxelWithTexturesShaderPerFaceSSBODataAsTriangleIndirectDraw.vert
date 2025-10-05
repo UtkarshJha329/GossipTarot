@@ -103,6 +103,10 @@ vec2 GetCurrentTexCoordBasedOnVertexIDAndCurFace(uint curFaceIndex) {
 
 void main()
 {
+	ivec3 numVoxelsInChunk = ivec3(32, 32, 32);
+	uint maxChunkLocalCoord = 31;
+	uint chunkPackedCoordShiftBy = 5;
+
 	uint maxVoxelLocalCoord = 31;
 	uint voxelCoordBitShiftBy = 5;
 
@@ -118,11 +122,22 @@ void main()
     uint zPos = currentInstancePosition & maxVoxelLocalCoord;
     currentInstancePosition = currentInstancePosition >> voxelCoordBitShiftBy;
 
-    vec3 voxelLocalPosition = vec3(float(xPos), float(yPos), float(zPos));
+    ivec3 voxelLocalPosition = ivec3(xPos, yPos, zPos);
+
+	uint packedChunkCoords = gl_BaseInstance;
+	uint chunkXPos = (packedChunkCoords & maxChunkLocalCoord) * numVoxelsInChunk.x;
+	packedChunkCoords = packedChunkCoords >> chunkPackedCoordShiftBy;
+
+	uint chunkYPos = (packedChunkCoords & maxChunkLocalCoord) * numVoxelsInChunk.y;
+	packedChunkCoords = packedChunkCoords >> chunkPackedCoordShiftBy;
+
+	uint chunkZPos = (packedChunkCoords & maxChunkLocalCoord) * numVoxelsInChunk.z;
+	packedChunkCoords = packedChunkCoords >> chunkPackedCoordShiftBy;
+
+	ivec3 chunkPosition = ivec3(chunkXPos, chunkYPos, chunkZPos);
 
 	uint curFace = currentInstancePosition & 7;
-    vec3 vertexPosition = GetCurrentVertexBasedOnFaceIndex(curFace) + voxelLocalPosition;
-
+    vec3 vertexPosition = chunkPosition + voxelLocalPosition + GetCurrentVertexBasedOnFaceIndex(curFace);
 
 
     gl_Position = projection * view * model * vec4(vertexPosition, 1.0);

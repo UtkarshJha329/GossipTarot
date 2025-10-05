@@ -140,6 +140,8 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw\VoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw.frag" />
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw\VoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw.vert" />
     <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle.frag" />
     <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle.vert" />
     <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceVBODataAsTriangle\CompressedVoxelWithTexturesShaderPerFaceVBODataAsTriangle.frag" />
@@ -167,7 +169,9 @@
   <ItemGroup>
     <ClInclude Include="BakedMeshData.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ChunkGeneration.h" />
     <ClInclude Include="Colour.h" />
+    <ClInclude Include="DrawElementsIndirect.h" />
     <ClInclude Include="FileHandling.h" />
     <ClInclude Include="GLMIncludes.h" />
     <ClInclude Include="GlobalConstants.h" />
@@ -188,6 +192,7 @@
     <ClInclude Include="UIText.h" />
     <ClInclude Include="Viewport.h" />
     <ClInclude Include="VoxelFunctions.h" />
+    <ClInclude Include="VoxelsDataPool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
