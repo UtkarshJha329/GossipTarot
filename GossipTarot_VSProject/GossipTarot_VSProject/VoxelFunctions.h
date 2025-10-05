@@ -139,8 +139,8 @@ void AddChunkToDrawCommand(const Vector3Int& chunkIndex, const ChunkVoxelsDataPo
 		.count = curChunkVoxelsDataPoolMetadata.numVoxelDataInBucket,
 		.instanceCount = 1,
 		.firstIndex = 0,
-		//.baseVertex = static_cast<int>(curChunkVoxelsDataPoolMetadata.voxelDataBucketOffsetIntoMegaArray),
-		.baseVertex = 0,
+		.baseVertex = static_cast<int>(curChunkVoxelsDataPoolMetadata.voxelDataBucketOffsetIntoMegaArray),
+		//.baseVertex = 0,
 		.baseInstance = packedChunkIndex
 		});
 }

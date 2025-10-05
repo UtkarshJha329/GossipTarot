@@ -66,8 +66,13 @@ const uint rightFaceID = 3;
 const uint frontFaceID = 4;
 const uint backFaceID = 5;
 
+
+uint GetCurrentVertexIDWithoutBaseVertex(){
+	return gl_VertexID - gl_BaseVertex;
+}
+
 uint GetCurrentTriangleVertexID(){
-	return gl_VertexID & 3;
+	return GetCurrentVertexIDWithoutBaseVertex() & 3;
 }
 
 vec3 GetCurrentVertexBasedOnFaceIndex(uint curFaceIndex) {
@@ -110,7 +115,8 @@ void main()
 	uint maxVoxelLocalCoord = 31;
 	uint voxelCoordBitShiftBy = 5;
 
-	uint curVertexDataID = gl_VertexID >> 2;
+	uint curVertexDataID = GetCurrentVertexIDWithoutBaseVertex() >> 2;
+	curVertexDataID += gl_BaseVertex;
     uint currentInstancePosition = voxelFaceAndPositionData[curVertexDataID];
 
     uint xPos = currentInstancePosition & maxVoxelLocalCoord;

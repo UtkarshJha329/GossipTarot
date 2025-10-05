@@ -317,13 +317,22 @@ int main() {
 
 
 	Transform cameraTransform;
-	cameraTransform.position = { 0.0f, 3.0f, -3.0f };
-	cameraTransform.rotation = { 0.0f, 0.0f, 0.0f };
+	cameraTransform.position = { 0.0f, 32.0f, -3.0f };
+	cameraTransform.rotation = { 0.0f, 45.0f, 0.0f };
 	cameraTransform.scale = { 1.0f, 1.0f, 1.0f };
 
 	Camera mainCamera;
 	mainCamera.viewport.dimensions = { WINDOW_WIDTH, WINDOW_HEIGHT };
 	mainCamera.SetProjectionMatrixToPerspectiveProjection(45.0f, 0.1f, 1000.0f);
+
+	Vector3 cameraFront = Vector3{ 0.0f, 0.0f, 1.0f };
+
+	glm::quat rotQuat = glm::quat(glm::radians(cameraTransform.rotation));
+	Mat4x4 rotationMatrix = glm::mat4_cast(rotQuat);
+	cameraFront = glm::vec3(rotationMatrix * glm::vec4(cameraFront, 1.0f));
+
+	mainCamera.SetCameraDirectionVectors(Transform::worldUp, cameraFront);
+
 
 
 	Transform uiModelTransform;
@@ -393,56 +402,16 @@ int main() {
 
 
 
-	//auto fnSimplex = FastNoise::New<FastNoise::Simplex>();
-	//auto fnFractal = FastNoise::New<FastNoise::FractalFBm>();
-
-	//fnFractal->SetSource(fnSimplex);
-	//fnFractal->SetOctaveCount(5);
-
-	Vector3Int worldSizeInChunks = { 16, 1, 16 };
+	Vector3Int worldSizeInChunks = { 8, 1, 8 };
 	Vector3Int chunkSizeInVoxels = { 32, 32, 32 };
-	//Vector3Int chunkSizeInVoxels = { 64, 64, 64 };
-	//std::vector<float> noiseOutput(chunkSizeInVoxels.x * chunkSizeInVoxels.z);
-
-	//fnFractal->GenUniformGrid2D(noiseOutput.data(), 0, 0, chunkSizeInVoxels.x, chunkSizeInVoxels.z, 0.2f, 1337);
-
-	//unsigned int numVoxelsInChunk = 0;
-	//GenerateChunkVoxelPositionsOnGPUAsVBO(simpleCubeMeshGPU, numVoxelsInChunk, noiseOutput, chunkSizeInVoxels);
-	//GenerateChunkVoxelInstancePositionsOnGPUAsVBO(simpleQuadMeshGPU, numVoxelsInChunk, noiseOutput, chunkSizeInVoxels);
-	//std::cout << "Num Voxels in chunk : " << numVoxelsInChunk << std::endl;
-
-	//unsigned int numIndicesInChunk = 0;
-	//MeshOnGPU chunkMeshOnGPU;
-	//GenerateChunkVoxelPositionsOnGPUAsVBO(chunkMeshOnGPU, numIndicesInChunk, noiseOutput, chunkSizeInVoxels);
-
-	//unsigned int numIndicesInChunk = 0;
-	//MeshOnGPU chunkMeshOnGPU;
-	//GenerateChunkVoxelPositionsOnGPUAsVBOAsTriangle(chunkMeshOnGPU, numIndicesInChunk, noiseOutput, chunkSizeInVoxels);
-
-	//unsigned int numIndicesInChunk = 0;
-	//unsigned int megaVoxelsQuadPositionsBufferObjectID = 0;
-	//unsigned int megaVoxelsQuadPositionsBufferObjectBindingLocation = 2;
-	//MeshOnGPU chunkMeshOnGPU;
-	//GenerateChunkVoxelPositionsOnGPUAsSSBOAsTriangle(noiseOutput, chunkSizeInVoxels, chunkMeshOnGPU, numIndicesInChunk, megaVoxelsQuadPositionsBufferObjectID);
 
 	unsigned int numVoxelDatasPerBucket = chunkSizeInVoxels.x * chunkSizeInVoxels.y * chunkSizeInVoxels.z;
 	unsigned int numBuckets = worldSizeInChunks.x * worldSizeInChunks.y * worldSizeInChunks.z;
 	unsigned int megaVoxelsDataBufferObjectBindingLocation = 2;
 	VoxelsDataPool voxelsDataPool(numVoxelDatasPerBucket, numBuckets, megaVoxelsDataBufferObjectBindingLocation);
 
-	//unsigned int numIndicesInChunk = 0;
-	//MeshOnGPU chunkMeshOnGPU;
-	//ChunkVoxelsDataPoolMetadata chunkVoxelsDataPoolMetadata;
-	//GenerateChunkVoxelPositionsOnGPUAsSSBOAsTriangleWithVoxelDataPool(noiseOutput, chunkSizeInVoxels, voxelsDataPool, chunkMeshOnGPU, numIndicesInChunk, chunkVoxelsDataPoolMetadata);
-
-	//unsigned int numIndicesInChunk = 0;
-	//MeshOnGPU chunkMeshOnGPU;
-	//ChunkVoxelsDataPoolMetadata chunkVoxelsDataPoolMetadata;
-	//GenerateChunkVoxelPositionsOnGPUAsSSBOAsTriangleWithVoxelDataPool(noiseOutput, chunkSizeInVoxels, voxelsDataPool, chunkMeshOnGPU, numIndicesInChunk, chunkVoxelsDataPoolMetadata);
-
 
 	IndirectDrawCommands chunksIndirectDrawCommands;
-	//AddChunkToDrawCommand(Vector3Int{ 1, 0, 1 }, chunkVoxelsDataPoolMetadata, chunksIndirectDrawCommands);
 
 	MeshOnGPU commonChunkMeshOnGPU;
 	GenerateCommonChunkMeshOnGPU(chunkSizeInVoxels, commonChunkMeshOnGPU);
@@ -450,9 +419,7 @@ int main() {
 	GenerateChunksAndAddToIndirectRenderCommandVectorOnCPU(worldSizeInChunks, chunkSizeInVoxels, voxelsDataPool, chunksIndirectDrawCommands);
 	chunksIndirectDrawCommands.GPU_InitCommandBuffer();
 
-	//chunksIndirectDrawCommands.GPU_InitCommandBuffer();
 
-	// TODO 2 : Make Multi Draw Elements Indirect Command
 
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> lastFrameEndTime = std::chrono::high_resolution_clock::now();
