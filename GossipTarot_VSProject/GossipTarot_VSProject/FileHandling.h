@@ -17,7 +17,7 @@ ContentsOfFile ReturnContentsOfFile(std::string filePath) {
     std::ifstream inputFile(filePath);
 
     if (!inputFile.is_open()) {
-        std::cerr << "Error: Could not open mydata.txt" << std::endl;
+        std::cerr << "Error: Could not open " << filePath << std::endl;
         returnContents.parsedState = -1;
         return returnContents; // Indicate an error
     }

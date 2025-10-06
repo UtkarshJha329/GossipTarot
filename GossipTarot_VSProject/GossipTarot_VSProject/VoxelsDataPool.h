@@ -1,25 +1,41 @@
 #pragma once
 
 #include <queue>
+#include <vector>
 
 #include "glad/glad.h"
+
+struct FaceVoxelsDataPoolMetadata {
+
+public:
+
+	unsigned int voxelDataBucketIndex = 0;
+	unsigned int voxelDataBucketOffsetIntoMegaArray = 0;
+	unsigned int numVoxelDataInBucket = 0;
+};
 
 struct ChunkVoxelsDataPoolMetadata {
 
 public:
-	unsigned int voxelDataBucketIndex = 0;
-	unsigned int voxelDataBucketOffsetIntoMegaArray = 0;
-	unsigned int numVoxelDataInBucket = 0;
+
+	unsigned int packedChunkIndex;
+
+	FaceVoxelsDataPoolMetadata topFaceVoxelsDataPoolMetadata;
+	FaceVoxelsDataPoolMetadata bottomFaceVoxelsDataPoolMetadata;
+	FaceVoxelsDataPoolMetadata leftFaceVoxelsDataPoolMetadata;
+	FaceVoxelsDataPoolMetadata rightFaceVoxelsDataPoolMetadata;
+	FaceVoxelsDataPoolMetadata frontFaceVoxelsDataPoolMetadata;
+	FaceVoxelsDataPoolMetadata backFaceVoxelsDataPoolMetadata;
 };
 
 class VoxelsDataPool {
 
 public:
 
-	unsigned int megaVoxelsDataBufferObjectID;
-	unsigned int megaVoxelsDataBufferObjectBindingLocation;
+	unsigned int megaVoxelsPerFaceDataBufferObjectID;
+	unsigned int megaVoxelsPerFaceDataBufferObjectBindingLocation;
 
-	uint32_t* megaVoxelsDataBufferGPUPointer;
+	uint32_t* megaVoxelsPerFaceDataBufferGPUPointer;
 
 	unsigned int numVoxelDataPerBucket;
 	unsigned int numBuckets;
@@ -30,26 +46,26 @@ public:
 	std::queue<unsigned int> freeDataBuckets;
 
 
-	VoxelsDataPool(unsigned int _numVoxelDataPerBucket, unsigned int _numBuckets, unsigned int _megaVoxelsDataBufferObjectBindingLocation) {
+	VoxelsDataPool(unsigned int _numVoxelDataPerBucket, unsigned int _numBuckets, unsigned int _megaVoxelsPerFaceDataBufferObjectBindingLocation) {
 
-		glCreateBuffers(1, &megaVoxelsDataBufferObjectID);
+		glCreateBuffers(1, &megaVoxelsPerFaceDataBufferObjectID);
 
 		numVoxelDataPerBucket = _numVoxelDataPerBucket;
 		numBuckets = _numBuckets;
 
-		megaVoxelsDataBufferObjectBindingLocation = _megaVoxelsDataBufferObjectBindingLocation;
+		megaVoxelsPerFaceDataBufferObjectBindingLocation = _megaVoxelsPerFaceDataBufferObjectBindingLocation;
 
 		sizeOfBucketInBytes = sizeof(unsigned int) * numVoxelDataPerBucket;
 		sizeOfPoolInBytes =  sizeOfBucketInBytes * numBuckets;
 
-		glNamedBufferStorage(megaVoxelsDataBufferObjectID, sizeOfPoolInBytes, nullptr,
+		glNamedBufferStorage(megaVoxelsPerFaceDataBufferObjectID, sizeOfPoolInBytes, nullptr,
 			GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
 
 		void* mappedPointerToBuffer = glMapNamedBufferRange(
-			megaVoxelsDataBufferObjectID, 0, sizeOfPoolInBytes,
+			megaVoxelsPerFaceDataBufferObjectID, 0, sizeOfPoolInBytes,
 			GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT
 		);
-		megaVoxelsDataBufferGPUPointer = reinterpret_cast<uint32_t*>(mappedPointerToBuffer);
+		megaVoxelsPerFaceDataBufferGPUPointer = reinterpret_cast<uint32_t*>(mappedPointerToBuffer);
 
 		for (unsigned int i = 0; i < numBuckets; i++)
 		{
@@ -58,19 +74,19 @@ public:
 	}
 
 	~VoxelsDataPool() {
-		glUnmapNamedBuffer(megaVoxelsDataBufferObjectID);
-		glDeleteBuffers(1, &megaVoxelsDataBufferObjectID);
+		glUnmapNamedBuffer(megaVoxelsPerFaceDataBufferObjectID);
+		glDeleteBuffers(1, &megaVoxelsPerFaceDataBufferObjectID);
 	}
 
-	bool WriteDataToFreePool(const std::vector<unsigned int>& chunkVoxelDataToCopyToPool, ChunkVoxelsDataPoolMetadata& chunkVoxelDataPoolMetadata) {
+	bool WriteFaceVoxelDataToFreeBucket(const std::vector<unsigned int>& chunkVoxelFaceDataToCopyToPool, FaceVoxelsDataPoolMetadata& chunkFaceVoxelDataPoolMetadata) {
 
 		unsigned int newFreeBucketIndex;
-		if (GetFreePool(newFreeBucketIndex)) {
-			uint32_t* pointerToBucket = megaVoxelsDataBufferGPUPointer + (newFreeBucketIndex * numVoxelDataPerBucket);
-			memcpy(pointerToBucket, chunkVoxelDataToCopyToPool.data(), chunkVoxelDataToCopyToPool.size() * sizeof(unsigned int));
+		if (GetFreeBucket(newFreeBucketIndex)) {
+			uint32_t* pointerToBucket = megaVoxelsPerFaceDataBufferGPUPointer + (newFreeBucketIndex * numVoxelDataPerBucket);
+			memcpy(pointerToBucket, chunkVoxelFaceDataToCopyToPool.data(), chunkVoxelFaceDataToCopyToPool.size() * sizeof(unsigned int));
 			
-			chunkVoxelDataPoolMetadata.voxelDataBucketIndex = newFreeBucketIndex;
-			chunkVoxelDataPoolMetadata.voxelDataBucketOffsetIntoMegaArray = newFreeBucketIndex * numVoxelDataPerBucket;
+			chunkFaceVoxelDataPoolMetadata.voxelDataBucketIndex = newFreeBucketIndex;
+			chunkFaceVoxelDataPoolMetadata.voxelDataBucketOffsetIntoMegaArray = newFreeBucketIndex * numVoxelDataPerBucket;
 
 			return true;
 		}
@@ -82,7 +98,7 @@ public:
 
 private:
 
-	bool GetFreePool(unsigned int& freePoolIndex) {
+	bool GetFreeBucket(unsigned int& freePoolIndex) {
 		if (freeDataBuckets.empty()) {
 			return false;
 		}

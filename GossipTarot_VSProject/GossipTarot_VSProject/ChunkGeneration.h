@@ -6,7 +6,13 @@
 #include "FastNoise/FastNoise.h"
 #include "VoxelFunctions.h"
 
-void GenerateChunksAndAddToIndirectRenderCommandVectorOnCPU(const Vector3Int& worldSizeInChunks, const Vector3Int& chunkSizeInVoxels, VoxelsDataPool& voxelsDataPool, IndirectDrawCommands& chunksIndirectDrawCommands) {
+unsigned int GetFlattenedChunkIndexForChunksVoxelsDataPoolMetadatas(const Vector3Int& worldSizeInChunks, const Vector3Int& chunkIndex) {
+	return chunkIndex.y * worldSizeInChunks.x * worldSizeInChunks.z + chunkIndex.z * worldSizeInChunks.x + chunkIndex.x;
+}
+
+void GenerateChunksAndAddToIndirectRenderCommandVectorOnCPU(const Vector3Int& worldSizeInChunks, const Vector3Int& chunkSizeInVoxels, VoxelsDataPool& voxelsDataPool, ChunksPerFaceIndirectDrawCommands& chunksPerFaceIndirectDrawCommands, std::vector<ChunkVoxelsDataPoolMetadata>& chunksVoxelsDataPoolMetadatas) {
+
+	chunksVoxelsDataPoolMetadatas.resize(worldSizeInChunks.x * worldSizeInChunks.y * worldSizeInChunks.z);
 
 	auto fnSimplex = FastNoise::New<FastNoise::Simplex>();
 	auto fnFractal = FastNoise::New<FastNoise::FractalFBm>();
@@ -14,15 +20,15 @@ void GenerateChunksAndAddToIndirectRenderCommandVectorOnCPU(const Vector3Int& wo
 	fnFractal->SetSource(fnSimplex);
 	fnFractal->SetOctaveCount(5);
 
-	for (unsigned int k = 0; k < worldSizeInChunks.y; k++)
+	for (unsigned int j = 0; j < worldSizeInChunks.y; j++)
 	{
-		for (unsigned int j = 0; j < worldSizeInChunks.x; j++)
+		for (unsigned int k = 0; k < worldSizeInChunks.z; k++)
 		{
-			for (unsigned int i = 0; i < worldSizeInChunks.z; i++)
+			for (unsigned int i = 0; i < worldSizeInChunks.x; i++)
 			{
 				std::vector<float> noiseOutput(chunkSizeInVoxels.x * chunkSizeInVoxels.z);
 
-				Vector3Int chunkStartWorldPos = Vector3Int{ i * chunkSizeInVoxels.x, k * chunkSizeInVoxels.y, j * chunkSizeInVoxels.z };
+				Vector3Int chunkStartWorldPos = Vector3Int{ i * chunkSizeInVoxels.x, j * chunkSizeInVoxels.y, k * chunkSizeInVoxels.z };
 				fnFractal->GenUniformGrid2D(noiseOutput.data(), chunkStartWorldPos.x, chunkStartWorldPos.z, chunkSizeInVoxels.x, chunkSizeInVoxels.z, 0.2f, 1337);
 
 				unsigned int numVoxelDatasPerBucket = chunkSizeInVoxels.x * chunkSizeInVoxels.y * chunkSizeInVoxels.z;
@@ -30,13 +36,13 @@ void GenerateChunksAndAddToIndirectRenderCommandVectorOnCPU(const Vector3Int& wo
 				unsigned int megaVoxelsDataBufferObjectBindingLocation = 2;
 
 
-				unsigned int numIndicesInChunk = 0;
-				MeshOnGPU chunkMeshOnGPU;
-				ChunkVoxelsDataPoolMetadata chunkVoxelsDataPoolMetadata;
-				GenerateChunkVoxelPositionsOnGPUAsSSBOAsTriangleWithVoxelDataPoolForIndirectDrawCommands(noiseOutput, chunkSizeInVoxels, voxelsDataPool, chunkVoxelsDataPoolMetadata);
+				Vector3Int chunkIndex = Vector3Int{ i, 0, k };
+				unsigned int flattenedChunkIndexForVoxelsDataPoolMetadatas = GetFlattenedChunkIndexForChunksVoxelsDataPoolMetadatas(worldSizeInChunks, chunkIndex);
 
+				chunksVoxelsDataPoolMetadatas[flattenedChunkIndexForVoxelsDataPoolMetadatas].packedChunkIndex = chunkIndex.x + (chunkIndex.y << 5) + (chunkIndex.z << 10);
+				GenerateChunkVoxelPositionsOnGPUAsSSBOAsTriangleWithVoxelDataPoolForIndirectDrawCommands(noiseOutput, chunkSizeInVoxels, voxelsDataPool, chunksVoxelsDataPoolMetadatas[flattenedChunkIndexForVoxelsDataPoolMetadatas]);
+				WriteChunkDataToDrawCommand(chunksVoxelsDataPoolMetadatas[flattenedChunkIndexForVoxelsDataPoolMetadatas], chunksPerFaceIndirectDrawCommands);
 
-				AddChunkToDrawCommand(Vector3Int{ i, 0, j }, chunkVoxelsDataPoolMetadata, chunksIndirectDrawCommands);
 			}
 		}
 	}

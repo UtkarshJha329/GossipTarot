@@ -4,7 +4,7 @@
 #include "Transform.h"
 #include "MeshOnGpu.h"
 
-#include "DrawElementsIndirect.h"
+#include "ChunksPerFaceDrawElementsIndirectCommands.h"
 
 void RenderQuad(const ShaderProgram& shaderForRendering, const Mat4x4& quadTransformMatrix, const int& textureIndex, const MeshOnGPU& meshOnGPU) {
 
@@ -76,7 +76,7 @@ void RenderMeshOnGPUWithNumIndicesAndSSBO(const ShaderProgram& shaderForRenderin
 
 }
 
-void RenderMeshOnGPUWithDrawElementsIndirectCommands(const ShaderProgram& shaderForRendering, const Mat4x4& globalTransformMatrix, const int& textureIndex, const MeshOnGPU& meshOnGPU, const IndirectDrawCommands& indirectDrawCommands, const unsigned int& ssboID, const unsigned int& ssboBindingLocation) {
+void RenderMeshOnGPUWithDrawElementsIndirectCommands(const ShaderProgram& shaderForRendering, const Mat4x4& globalTransformMatrix, const int& textureIndex, const MeshOnGPU& meshOnGPU, const ChunksPerFaceIndirectDrawCommands& chunksPerFaceIndirectDrawCommands, const unsigned int& ssboID, const unsigned int& ssboBindingLocation) {
 
 	int modelLoc = glGetUniformLocation(shaderForRendering.shaderProgramID, "model");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(globalTransformMatrix));
@@ -86,13 +86,14 @@ void RenderMeshOnGPUWithDrawElementsIndirectCommands(const ShaderProgram& shader
 	glBindTexture(GL_TEXTURE_2D, Texture::textures[textureIndex].textureID);
 
 	glBindVertexArray(meshOnGPU.VAO);
-	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectDrawCommands.gpu_drawElementsIndirectCommandsBuffer);
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, chunksPerFaceIndirectDrawCommands.gpu_drawElementsIndirectCommandsBufferID);
 
 	glMultiDrawElementsIndirect(
 		GL_TRIANGLES,
 		GL_UNSIGNED_INT,												// Type of data in indicesBuffer
 		(const void*)0,													// No offset into draw command buffer
-		indirectDrawCommands.cpu_drawElementsIndirectCommands.size(),	// Indirect Buffer Count
+		//chunksPerFaceIndirectDrawCommands.cpu_drawElementsIndirectCommands.size(),	// Indirect Buffer Count
+		chunksPerFaceIndirectDrawCommands.numDrawCommandsFilled,	// Indirect Buffer Count
 		0																// No stride as data is tightly packed, for now.
 	);
 }

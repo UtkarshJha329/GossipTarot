@@ -120,7 +120,7 @@
     <ClInclude Include="VoxelsDataPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DrawElementsIndirect.h">
+    <ClInclude Include="ChunksPerFaceDrawElementsIndirectCommands.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ChunkGeneration.h">

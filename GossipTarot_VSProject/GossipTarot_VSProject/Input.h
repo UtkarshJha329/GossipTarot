@@ -169,6 +169,7 @@ void ResetKeysReleased() {
 	keyReleasedInThisFrame[KeyIndex(KeyCode::KEY_Q)] = false;
 	keyReleasedInThisFrame[KeyIndex(KeyCode::KEY_E)] = false;
 	keyReleasedInThisFrame[KeyIndex(KeyCode::KEY_ESCAPE)] = false;
+	keyReleasedInThisFrame[KeyIndex(KeyCode::KEY_SPACE)] = false;
 
 	keyReleasedInThisFrame[KeyIndex(KeyCode::MOUSE_BUTTON_LEFT)] = false;
 	keyReleasedInThisFrame[KeyIndex(KeyCode::MOUSE_BUTTON_RIGHT)] = false;

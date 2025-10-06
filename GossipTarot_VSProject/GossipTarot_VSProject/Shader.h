@@ -9,7 +9,8 @@
 
 enum class SHADER_TYPE {
 	VERTEX_SHADER,
-	FRAGMENT_SHADER
+	FRAGMENT_SHADER,
+	COMPUTE_SHADER
 };
 
 class Shader {
@@ -33,6 +34,9 @@ public:
 			else if (shaderType == SHADER_TYPE::FRAGMENT_SHADER) {
 				std::cout << "Failed to read fragment shader file." << std::endl;
 			}
+			else if (shaderType == SHADER_TYPE::COMPUTE_SHADER) {
+				std::cout << "Failed to read compute shader file." << std::endl;
+			}
 			return -1;
 		}
 
@@ -43,6 +47,9 @@ public:
 		}
 		else if (shaderType == SHADER_TYPE::FRAGMENT_SHADER) {
 			shaderID = glCreateShader(GL_FRAGMENT_SHADER);
+		}
+		else if (shaderType == SHADER_TYPE::COMPUTE_SHADER) {
+			shaderID = glCreateShader(GL_COMPUTE_SHADER);
 		}
 
 		glShaderSource(shaderID, 1, &curShaderText, NULL);
@@ -59,6 +66,9 @@ public:
 			}
 			else if (shaderType == SHADER_TYPE::FRAGMENT_SHADER) {
 				std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+			}
+			else if (shaderType == SHADER_TYPE::COMPUTE_SHADER) {
+				std::cout << "ERROR::SHADER::COMPUTE::COMPILATION_FAILED\n" << infoLog << std::endl;
 			}
 		};
 
