@@ -140,6 +140,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw\VoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw.comp" />
     <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw\VoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw.frag" />
     <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw\VoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw.vert" />
     <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle.frag" />
@@ -170,6 +171,7 @@
     <ClInclude Include="BakedMeshData.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ChunkGeneration.h" />
+    <ClInclude Include="ChunksVoxelsDataPoolMetadata.h" />
     <ClInclude Include="Colour.h" />
     <ClInclude Include="ChunksPerFaceDrawElementsIndirectCommands.h" />
     <ClInclude Include="FileHandling.h" />

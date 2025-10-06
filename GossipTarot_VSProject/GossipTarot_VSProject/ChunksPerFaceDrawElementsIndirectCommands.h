@@ -24,14 +24,37 @@ public:
 
 	unsigned int gpu_drawElementsIndirectCommandsBufferID;
 	DrawElementsIndirectCommand* gpu_drawElementsIndirectCommandsBufferPointer;
+	unsigned int gpu_drawElementsIndirectCommandsBufferBindingPoint;
 
-	ChunksPerFaceIndirectDrawCommands(unsigned int maxNumDrawCommands) {
+	unsigned int gpu_drawElementsIndirectCommandsDrawCountBufferID;
+	unsigned int gpu_drawElementsIndirectCommandsDrawCountBufferBindingPoint;
+
+	ChunksPerFaceIndirectDrawCommands(unsigned int maxNumDrawCommands, unsigned int indirectCommandsBufferBindingPoint, unsigned int drawCountBufferBindingPoint) {
 		cpu_drawElementsIndirectCommands.resize(maxNumDrawCommands);
 		
 		numDrawCommandsFilled = 0;
 
 		gpu_drawElementsIndirectCommandsBufferID = 0;
 		gpu_drawElementsIndirectCommandsBufferPointer = nullptr;
+
+		gpu_drawElementsIndirectCommandsBufferBindingPoint = indirectCommandsBufferBindingPoint;
+		gpu_drawElementsIndirectCommandsDrawCountBufferBindingPoint = drawCountBufferBindingPoint;
+
+		glCreateBuffers(1, &gpu_drawElementsIndirectCommandsDrawCountBufferID);
+
+		unsigned int initialCount = 0;
+		glNamedBufferStorage(gpu_drawElementsIndirectCommandsDrawCountBufferID,
+			sizeof(unsigned int),
+			(const void*)&initialCount,
+			GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT);
+	}
+
+	~ChunksPerFaceIndirectDrawCommands() {
+		glUnmapNamedBuffer(gpu_drawElementsIndirectCommandsBufferID);
+		glDeleteBuffers(1, &gpu_drawElementsIndirectCommandsBufferID);
+
+		glUnmapNamedBuffer(gpu_drawElementsIndirectCommandsDrawCountBufferID);
+		glDeleteBuffers(1, &gpu_drawElementsIndirectCommandsDrawCountBufferID);
 	}
 
 	void GPU_InitCommandBuffer() {
@@ -54,6 +77,11 @@ public:
 	void GPU_UpdateIndirectCommandsBuffer(unsigned int _numDrawCommandsFilled) {
 		numDrawCommandsFilled = _numDrawCommandsFilled;
 		memcpy(gpu_drawElementsIndirectCommandsBufferPointer, cpu_drawElementsIndirectCommands.data(), numDrawCommandsFilled * sizeof(DrawElementsIndirectCommand));
+	}
+
+	void GPU_BindIndirectCommandsBufferAndDrawCountBufferToBindingPoints() {
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, gpu_drawElementsIndirectCommandsBufferBindingPoint, gpu_drawElementsIndirectCommandsBufferID);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, gpu_drawElementsIndirectCommandsDrawCountBufferBindingPoint, gpu_drawElementsIndirectCommandsDrawCountBufferID);
 	}
 
 };

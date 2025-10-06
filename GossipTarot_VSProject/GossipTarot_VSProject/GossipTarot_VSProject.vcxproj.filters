@@ -46,6 +46,7 @@
     <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangle.vert" />
     <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw\VoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw.frag" />
     <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw\VoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw.vert" />
+    <None Include="Assets\Shaders\CompressedVoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw\VoxelWithTexturesShaderPerFaceSSBODataAsTriangleIndirectDraw.comp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileHandling.h">
@@ -124,6 +125,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ChunkGeneration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunksVoxelsDataPoolMetadata.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

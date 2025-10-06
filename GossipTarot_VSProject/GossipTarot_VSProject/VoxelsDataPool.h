@@ -5,28 +5,7 @@
 
 #include "glad/glad.h"
 
-struct FaceVoxelsDataPoolMetadata {
-
-public:
-
-	unsigned int voxelDataBucketIndex = 0;
-	unsigned int voxelDataBucketOffsetIntoMegaArray = 0;
-	unsigned int numVoxelDataInBucket = 0;
-};
-
-struct ChunkVoxelsDataPoolMetadata {
-
-public:
-
-	unsigned int packedChunkIndex;
-
-	FaceVoxelsDataPoolMetadata topFaceVoxelsDataPoolMetadata;
-	FaceVoxelsDataPoolMetadata bottomFaceVoxelsDataPoolMetadata;
-	FaceVoxelsDataPoolMetadata leftFaceVoxelsDataPoolMetadata;
-	FaceVoxelsDataPoolMetadata rightFaceVoxelsDataPoolMetadata;
-	FaceVoxelsDataPoolMetadata frontFaceVoxelsDataPoolMetadata;
-	FaceVoxelsDataPoolMetadata backFaceVoxelsDataPoolMetadata;
-};
+#include "ChunksVoxelsDataPoolMetadata.h"
 
 class VoxelsDataPool {
 
