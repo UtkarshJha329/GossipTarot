@@ -444,6 +444,7 @@ public:
 
 			auto current_it = freeBucketsSortedByPositionInMegaArray.insert({ curFaceVoxelDataPoolMetadata.voxelDataBucketOffsetIntoMegaArrayIndex, currentUsedBucket->second }).first;
 
+			//std::cout << "BEFORE MERGING DELETED : " << current_it->first << ", " << current_it->second << std::endl;
 
 			if (current_it != freeBucketsSortedByPositionInMegaArray.begin()) {
 				auto prev_it = std::prev(current_it);
@@ -452,7 +453,7 @@ public:
 
 					freeBucketsSortedByPositionInMegaArray.erase(current_it);
 					current_it = prev_it;
-					//std::cout << "\tMerged with previous free block: " << current_it->indexOffsetIntoMegaArray << ", " << current_it->sizeInIndexCountInMegaArray << std::endl;
+					//std::cout << "\tMerged with previous free block: " << current_it->first << ", " << current_it->second << std::endl;
 				}
 			}
 
@@ -461,16 +462,17 @@ public:
 				if (current_it->first + current_it->second == next_it->first) {
 					current_it->second += next_it->second;
 
-					//std::cout << "\tMerged with next free block: " << current_it->indexOffsetIntoMegaArray << ", " << current_it->sizeInIndexCountInMegaArray << std::endl;
+					//std::cout << "\tMerged with next free block: " << current_it->first << ", " << current_it->second << std::endl;
 					freeBucketsSortedByPositionInMegaArray.erase(next_it);
 				}
 			}
 
-			curFaceVoxelDataPoolMetadata.numVoxelDataInBucket = 0;
+			//curFaceVoxelDataPoolMetadata.numVoxelDataInBucket = 0;
 			usedBucketsIndexAndSize.erase(curFaceVoxelDataPoolMetadata.voxelDataBucketOffsetIntoMegaArrayIndex);
 		}
 		else {
-			std::cout << "Trying to free bucket that was not in use : " << curFaceVoxelDataPoolMetadata.voxelDataBucketOffsetIntoMegaArrayIndex << std::endl;
+			std::cout << "\tTrying to free bucket that was not in use : " << curFaceVoxelDataPoolMetadata.voxelDataBucketOffsetIntoMegaArrayIndex  << ", " << curFaceVoxelDataPoolMetadata.numVoxelDataInBucket / 3 << std::endl;
+ 			std::cout << "Breakpoint" << std::endl;
 		}
 
 	}
@@ -511,7 +513,7 @@ public:
 							unsigned int modifiedIndexOfBlock = freePoolOffsetInMegaVoxelsArrayIndex + numVoxelsPerFace;
 							unsigned int modifiedSizeOfBlock = it->second - numVoxelsPerFace;
 
-							//std::cout << "Created by SPLITTING LARGE BLOCK : " << freePoolOffsetInMegaVoxelsArrayIndex  << ", " << numVoxelsPerFace << std::endl;
+							//std::cout << "Created by SPLITTING LARGE BLOCK : " << it->second << " Result : " << freePoolOffsetInMegaVoxelsArrayIndex << ", " << numVoxelsPerFace << std::endl;
 
 							freeBucketsSortedByPositionInMegaArray.erase(it);
 							freeBucketsSortedByPositionInMegaArray.insert({ modifiedIndexOfBlock, modifiedSizeOfBlock });
@@ -543,6 +545,8 @@ public:
 	void DefragUntilSize(unsigned int sizeNeeded) {
 
 		PROFILE_FUNCTION("Defrag Until Size");
+
+		std::lock_guard<std::mutex> lock(m_mutex);
 
 		//std::cout << "DEFRAGGING for size : " << sizeNeeded << std::endl;
 

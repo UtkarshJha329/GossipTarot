@@ -403,7 +403,7 @@ int main() {
 
 
 
-	// VVV LIMITED BY COMPRESSION TO INT IN PACKED CHUNK INDEX AND NUMBER OF COMPUTE THREADS DISPATCHED! Currently limited by each coordinate having 7 bits, i.e max 127 for each coord but with compute threads dispatched it is limited to __.
+	// VVV LIMITED BY COMPRESSION TO INT IN PACKED CHUNK INDEX AND NUMBER OF COMPUTE THREADS DISPATCHED! Currently limited by each coordinate having 8 bits, i.e max 255 for each coord but with compute threads dispatched it is limited to __.
 	Vector3Int worldSizeInChunks = { 200, 16, 200 };
 	//Vector3Int worldSizeInChunks = { 120, 16, 120 };
 	//Vector3Int worldSizeInChunks = { 96, 16, 96 };
@@ -509,16 +509,18 @@ int main() {
 	ChunksVisiblityFromCulling chunksVisibilityFromCulling(totalNumChunks, gpu_cameraFrustumDataBindingPoint, gpu_chunksVisibilityFromCullingDataBindingPoint);
 
 
-	// Todo 2 : Block Editing.
+	// Todo 1 : Don't persistent map entire mega array, use smaller ararys and then issue copy command to the gpu
+	// Todo 2 : Block Editing.	
 	// Todo 3 : Block types/ block palette.
 	// Todo 4 : Binary Meshing.
-	// Todo 1 : Don't persistent map entire mega array, use smaller ararys and then issue copy command on gpu.
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> lastFrameEndTime = std::chrono::high_resolution_clock::now();
 	float deltaTime = 0.0f;
 
 	bool freezeCulling = false;
 	bool drawBoundingBox = false;
+	
+	unsigned int printCounter = 0;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -615,6 +617,9 @@ int main() {
 				if (!newChunkLODLevels.empty()) {
 
 
+					//std::cout << "Not generating a chunk already, so generating now. " << printCounter << std::endl;
+					//printCounter++;
+
 					Vector3 halfChunkSize = Vector3(chunkSizeInVoxels / 2);
 
 					auto fnSimplex = FastNoise::New<FastNoise::Simplex>();
@@ -630,34 +635,44 @@ int main() {
 
 						int previousLODLevelOfCurChunk = chunksLODLevel[flattenedChunkIndex];
 
+						//std::cout << "Generating Chunk again : ";
+						//PrintVector3(curChunkIndex);
+						//std::cout << " Previous LOD : " << previousLODLevelOfCurChunk << " New LOD Level : " << newChunkLODLevels[i].second << std::endl;
+
 
 						if (chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].topFaceVoxelsDataPoolMetadata.numVoxelDataInBucket > 0) {
 							unsigned int chunksCurrentTopFaceBucketIndex = chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].topFaceVoxelsDataPoolMetadata.voxelDataBucketOffsetIntoMegaArrayIndex;
 							//voxelsDataPool.MakeBucketAFreeBucket(chunksCurrentTopFaceBucketIndex);
+							//std::cout << "\t chunks top face bucket index : " << chunksCurrentTopFaceBucketIndex << ", " << chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].topFaceVoxelsDataPoolMetadata.numVoxelDataInBucket << std::endl;
 							voxelsDataPool.MakeBucketAFreeBucket(chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].topFaceVoxelsDataPoolMetadata);
 						}
 						if (chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].bottomFaceVoxelsDataPoolMetadata.numVoxelDataInBucket > 0) {
 							unsigned int chunksCurrentBottomFaceBucketIndex = chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].bottomFaceVoxelsDataPoolMetadata.voxelDataBucketOffsetIntoMegaArrayIndex;
+							//std::cout << "\t chunks bottom face bucket index : " << chunksCurrentBottomFaceBucketIndex << ", " << chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].bottomFaceVoxelsDataPoolMetadata.numVoxelDataInBucket << std::endl;
 							voxelsDataPool.MakeBucketAFreeBucket(chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].bottomFaceVoxelsDataPoolMetadata);
 						}
 						if (chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].frontFaceVoxelsDataPoolMetadata.numVoxelDataInBucket > 0) {
 							unsigned int chunksCurrentFrontFaceBucketIndex = chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].frontFaceVoxelsDataPoolMetadata.voxelDataBucketOffsetIntoMegaArrayIndex;
+							//std::cout << "\t chunks front face bucket index : " << chunksCurrentFrontFaceBucketIndex << ", " << chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].frontFaceVoxelsDataPoolMetadata.numVoxelDataInBucket << std::endl;
 							voxelsDataPool.MakeBucketAFreeBucket(chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].frontFaceVoxelsDataPoolMetadata);
 						}
 						if (chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].backFaceVoxelsDataPoolMetadata.numVoxelDataInBucket > 0) {
 							unsigned int chunksCurrentBackFaceBucketIndex = chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].backFaceVoxelsDataPoolMetadata.voxelDataBucketOffsetIntoMegaArrayIndex;
+							//std::cout << "\t chunks back face bucket index : " << chunksCurrentBackFaceBucketIndex << ", " << chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].backFaceVoxelsDataPoolMetadata.numVoxelDataInBucket << std::endl;
 							voxelsDataPool.MakeBucketAFreeBucket(chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].backFaceVoxelsDataPoolMetadata);
 						}
 						if (chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].leftFaceVoxelsDataPoolMetadata.numVoxelDataInBucket > 0) {
 							unsigned int chunksCurrentLeftFaceBucketIndex = chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].leftFaceVoxelsDataPoolMetadata.voxelDataBucketOffsetIntoMegaArrayIndex;
+							//std::cout << "\t chunks left face bucket index : " << chunksCurrentLeftFaceBucketIndex << ", " << chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].leftFaceVoxelsDataPoolMetadata.numVoxelDataInBucket << std::endl;
 							voxelsDataPool.MakeBucketAFreeBucket(chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].leftFaceVoxelsDataPoolMetadata);
 						}
 						if (chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].rightFaceVoxelsDataPoolMetadata.numVoxelDataInBucket > 0) {
 							unsigned int chunksCurrentRightFaceBucketIndex = chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].rightFaceVoxelsDataPoolMetadata.voxelDataBucketOffsetIntoMegaArrayIndex;
+							//std::cout << "\t chunks right face bucket index : " << chunksCurrentRightFaceBucketIndex << ", " << chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].rightFaceVoxelsDataPoolMetadata.numVoxelDataInBucket << std::endl;
 							voxelsDataPool.MakeBucketAFreeBucket(chunksVoxelsDataPoolMetadatas.chunksVoxelsDataPoolMetadatas[flattenedChunkIndex].rightFaceVoxelsDataPoolMetadata);
 						}
 
-						chunksVoxelsDataPoolMetadatas.GPU_UploadChunkVoxelsDataPoolMetadatasToTheGPU(flattenedChunkIndex);
+						//chunksVoxelsDataPoolMetadatas.GPU_UploadChunkVoxelsDataPoolMetadatasToTheGPU(flattenedChunkIndex);
 
 					}
 

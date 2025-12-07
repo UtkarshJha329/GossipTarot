@@ -103,6 +103,10 @@ void GPU_WriteFaceVoxelDataToFreeBucketAndFillMetadata(VoxelsDataPool& voxelsDat
 			std::cout << "ERROR : " << "Failed to write data to voxel data pool. Cur LOD Level := " << curLODLevel << ", num voxels for faces : " << numVoxelsForFace << std::endl;
 		}
 	}
+	else {
+		curChunkFaceVoxelsDataPoolMetadata.voxelDataBucketOffsetIntoMegaArrayIndex = 0;
+		curChunkFaceVoxelsDataPoolMetadata.numVoxelDataInBucket = 0;
+	}
 }
 
 void GenerateChunkVoxelPositionsOnGPUAsSSBOAsTriangleWithVoxelDataPoolForIndirectDrawCommands(const std::vector<float>& chunkNoise, const Vector3Int& chunkIndex, const Vector3Int& chunkSizeInVoxels, const Vector3Int& worldSizeInChunks, const int& curChunkLODLevel, VoxelsDataPool& voxelsDataPool, ChunkVoxelsDataPoolMetadata& curChunkVoxelsDataPoolMetadata) {

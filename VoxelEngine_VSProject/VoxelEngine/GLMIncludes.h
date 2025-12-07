@@ -13,12 +13,19 @@ typedef glm::ivec3 Vector3Int;
 typedef glm::vec4 Vector4;
 typedef glm::mat4 Mat4x4;
 
-#ifdef _DEBUG
+
+#define VECTOR3_LOG
+#ifdef VECTOR3_LOG
 
 #include <iostream>
 
 void PrintVector3(const Vector3& vector) {
-	std::cout << vector.x << ", " << vector.z << ", " << vector.y << std::endl;
+	std::cout << vector.x << ", " << vector.z << ", " << vector.y;
+}
+
+void PrintVector3NL(const Vector3& vector) {
+	PrintVector3(vector);
+	std::cout << std::endl;
 }
 
 #endif
